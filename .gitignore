@@ -1,0 +1,7 @@
+build/
+bin/
+.cproject
+.project
+.settings/
+test.bc
+test.ll
