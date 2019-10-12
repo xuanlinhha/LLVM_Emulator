@@ -12,8 +12,15 @@
 
 class FloatVal : public SimVal {
 public:
-  FloatVal();
+  FloatVal(double fv, bool isd);                 // concrete
+  FloatVal(SymExprType set, string n, bool isd); // symbolic
   virtual ~FloatVal();
+  double fpVal;
+  bool isDouble;
+
+  virtual unsigned getBitWidth();
+  virtual shared_ptr<SimVal> mulMinusOne();
+  virtual shared_ptr<SimVal> combineAddOnce();
 };
 
 #endif /* SRC_EXECUTION_VALUE_FLOATVAL_H_ */

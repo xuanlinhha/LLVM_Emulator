@@ -7,12 +7,10 @@
 
 #include "SimVal.h"
 
-SimVal::SimVal(DynValType vt, bool sym)
-    : DynVal(vt), isSym(sym), symExprType(SymExprType::INVALID) {}
+SimVal::SimVal(DynValType vt)
+    : DynVal(vt), isSym(false), symExprType(SymExprType::INVALID) {}
 
-SimVal::SimVal(DynValType vt, bool sym, SymExprType set, string n)
-    : DynVal(vt), isSym(sym), symExprType(set), name(n) {}
+SimVal::SimVal(DynValType vt, SymExprType set, string n)
+    : DynVal(vt), isSym(true), symExprType(set), name(n) {}
 
-SimVal::~SimVal() {
-  // TODO Auto-generated destructor stub
-}
+SimVal::~SimVal() {}

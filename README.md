@@ -22,7 +22,7 @@ ROOT/z3 $ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../
 ROOT/z3 $ make -j8
 ```
 
-##### Build llvm-emulator
+##### Build LLVM_Emulator
 Firstly, adjust the paths of LLVM & Z3 in these two lines of `ROOT/LLVM_Emulator/src/tool/CMakeLists.txt`:
 
 ```

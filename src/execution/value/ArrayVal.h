@@ -12,8 +12,13 @@
 
 class ArrayVal : public DynVal {
 public:
-  ArrayVal();
+  ArrayVal(unsigned es, unsigned as);
   virtual ~ArrayVal();
+  unsigned elemSize;
+  unsigned arraySize;
+  vector<shared_ptr<DynVal>> array;
+  void setElementAtIndex(unsigned idx, shared_ptr<DynVal> val);
+  shared_ptr<DynVal> getElementAtIndex(unsigned idx) const;
 };
 
 #endif /* SRC_EXECUTION_VALUE_ARRAYVAL_H_ */

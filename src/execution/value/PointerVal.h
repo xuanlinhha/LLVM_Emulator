@@ -10,10 +10,20 @@
 
 #include "SimVal.h"
 
+enum class AddressSpace { GLOBAL = 0, STACK, HEAP, UNDEFINED };
+
 class PointerVal : public SimVal {
 public:
-  PointerVal();
+  PointerVal(unsigned a, AddressSpace s); // concrete
+  PointerVal(SymExprType set, string n);  // symbolic
   virtual ~PointerVal();
+  static unsigned PointerSize;
+  unsigned long address;
+  AddressSpace space;
+
+  virtual unsigned getBitWidth();
+  virtual shared_ptr<SimVal> mulMinusOne();
+  virtual shared_ptr<SimVal> combineAddOnce();
 };
 
 #endif /* SRC_EXECUTION_VALUE_POINTERVAL_H_ */

@@ -2,8 +2,8 @@
 #include <map>
 #include <string>
 
-#include "llvm/Support/SourceMgr.h"
-#include "llvm/Support/TargetSelect.h"
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetSelect.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>

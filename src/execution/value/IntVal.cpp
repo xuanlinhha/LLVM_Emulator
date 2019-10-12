@@ -7,10 +7,16 @@
 
 #include "IntVal.h"
 
-IntVal::IntVal() {
-  // TODO Auto-generated constructor stub
-}
+IntVal::IntVal(const APInt &iv)
+    : SimVal(DynValType::INT_VAL), intVal(iv), bitWidth(iv.getBitWidth()) {}
 
-IntVal::~IntVal() {
-  // TODO Auto-generated destructor stub
-}
+IntVal::IntVal(unsigned bw, SymExprType set, string n)
+    : SimVal(DynValType::INT_VAL, set, n), bitWidth(bw) {}
+
+IntVal::~IntVal() {}
+
+unsigned IntVal::getBitWidth() { return bitWidth; }
+
+shared_ptr<SimVal> mulMinusOne() { return nullptr; }
+
+shared_ptr<SimVal> combineAddOnce() { return nullptr; }

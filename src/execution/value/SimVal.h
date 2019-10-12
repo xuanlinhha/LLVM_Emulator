@@ -52,8 +52,8 @@ enum class SymExprType {
 
 class SimVal : public DynVal {
 public:
-  SimVal(DynValType vt, bool sym);
-  SimVal(DynValType vt, bool sym, SymExprType set, string n = "");
+  SimVal(DynValType vt);                                 // concrete
+  SimVal(DynValType vt, SymExprType set, string n = ""); // symbolic
   virtual ~SimVal();
   bool isSym;
   SymExprType symExprType;
