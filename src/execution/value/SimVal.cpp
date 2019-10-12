@@ -14,3 +14,9 @@ SimVal::SimVal(DynValType vt, SymExprType set, string n)
     : DynVal(vt), isSym(true), symExprType(set), name(n) {}
 
 SimVal::~SimVal() {}
+
+unsigned SimVal::getBitWidth() { return 0; }
+
+shared_ptr<SimVal> SimVal::mulMinusOne() { return nullptr; }
+
+shared_ptr<SimVal> SimVal::combineAddOnce() { return nullptr; }

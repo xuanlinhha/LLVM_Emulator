@@ -17,6 +17,6 @@ IntVal::~IntVal() {}
 
 unsigned IntVal::getBitWidth() { return bitWidth; }
 
-shared_ptr<SimVal> mulMinusOne() { return nullptr; }
+shared_ptr<SimVal> IntVal::mulMinusOne() { return nullptr; }
 
-shared_ptr<SimVal> combineAddOnce() { return nullptr; }
+shared_ptr<SimVal> IntVal::combineAddOnce() { return nullptr; }
