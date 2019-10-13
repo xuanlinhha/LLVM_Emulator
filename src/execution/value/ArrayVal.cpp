@@ -20,3 +20,31 @@ void ArrayVal::setElementAtIndex(unsigned idx, shared_ptr<DynVal> val) {
 shared_ptr<DynVal> ArrayVal::getElementAtIndex(unsigned idx) const {
   return array.at(idx);
 }
+
+void ArrayVal::print() {
+  errs() << "(AV, [";
+  for (vector<shared_ptr<DynVal>>::iterator it = array.begin(),
+                                            ie = array.end();
+       it != ie; ++it) {
+    (*it)->print();
+    if (std::next(it) != array.end()) {
+      errs() << ", ";
+    }
+  }
+  errs() << "])";
+}
+
+string ArrayVal::toString() {
+  stringstream ss;
+  ss << "(AV, [";
+  for (vector<shared_ptr<DynVal>>::iterator it = array.begin(),
+                                            ie = array.end();
+       it != ie; ++it) {
+    ss << (*it)->toString();
+    if (std::next(it) != array.end()) {
+      ss << ", ";
+    }
+  }
+  ss << "])";
+  return ss.str();
+}

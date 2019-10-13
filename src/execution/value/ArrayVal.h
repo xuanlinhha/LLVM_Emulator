@@ -19,6 +19,9 @@ public:
   vector<shared_ptr<DynVal>> array;
   void setElementAtIndex(unsigned idx, shared_ptr<DynVal> val);
   shared_ptr<DynVal> getElementAtIndex(unsigned idx) const;
+
+  virtual void print();
+  virtual string toString();
 };
 
 #endif /* SRC_EXECUTION_VALUE_ARRAYVAL_H_ */

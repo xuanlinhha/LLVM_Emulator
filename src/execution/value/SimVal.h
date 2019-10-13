@@ -55,6 +55,7 @@ public:
   SimVal(DynValType vt);                                 // concrete
   SimVal(DynValType vt, SymExprType set, string n = ""); // symbolic
   virtual ~SimVal();
+  static std::map<SymExprType, string> symExprTypeName;
   bool isSym;
   SymExprType symExprType;
   string name;
@@ -63,6 +64,8 @@ public:
   virtual unsigned getBitWidth();
   virtual shared_ptr<SimVal> mulMinusOne();
   virtual shared_ptr<SimVal> combineAddOnce();
+  virtual void print();
+  virtual string toString();
 };
 
 #endif /* SRC_EXECUTION_VALUE_SIMVAL_H_ */

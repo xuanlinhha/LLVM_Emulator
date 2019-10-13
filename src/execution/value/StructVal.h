@@ -19,6 +19,9 @@ public:
   unsigned structSize;
   void addField(unsigned offset, shared_ptr<DynVal> val);
   shared_ptr<DynVal> getFieldAtPos(unsigned num) const;
+
+  virtual void print();
+  virtual string toString();
 };
 
 #endif /* SRC_EXECUTION_VALUE_STRUCTVAL_H_ */
