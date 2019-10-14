@@ -1,3 +1,9 @@
 target_sources(sym
   PRIVATE
+    Memory.cpp
+    Memory.h
+    StackFrame.cpp
+    StackFrame.h
+    ExecutionState.cpp
+    ExecutionState.h
 )

@@ -15,7 +15,7 @@ class StructVal : public DynVal {
 public:
   StructVal(unsigned);
   virtual ~StructVal();
-  map<unsigned, shared_ptr<DynVal>> structMap;
+  map<unsigned, shared_ptr<DynVal>> structMap; // offset -> value
   unsigned structSize;
   void addField(unsigned offset, shared_ptr<DynVal> val);
   shared_ptr<DynVal> getFieldAtPos(unsigned num) const;
