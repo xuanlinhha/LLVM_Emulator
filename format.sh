@@ -18,6 +18,8 @@ echo "=== CLANG FORMAT ==="
 $CLANG_FORMAT -i $SRC/include/*.h
 $CLANG_FORMAT -i $SRC/execution/symexe/*.h
 $CLANG_FORMAT -i $SRC/execution/symexe/*.cpp
+$CLANG_FORMAT -i $SRC/execution/searcher/*.h
+$CLANG_FORMAT -i $SRC/execution/searcher/*.cpp
 $CLANG_FORMAT -i $SRC/execution/state/*.h
 $CLANG_FORMAT -i $SRC/execution/state/*.cpp
 $CLANG_FORMAT -i $SRC/execution/value/*.h

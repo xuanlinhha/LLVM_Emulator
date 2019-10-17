@@ -7,10 +7,11 @@
 
 #include "ExecutionState.h"
 
-ExecutionState::ExecutionState() {
-  // TODO Auto-generated constructor stub
-}
+Module *ExecutionState::module = nullptr;
+shared_ptr<DataLayout> ExecutionState::dataLayout = nullptr;
 
-ExecutionState::~ExecutionState() {
-  // TODO Auto-generated destructor stub
-}
+ExecutionState::ExecutionState()
+    : globalMem(new Memory()), stackMem(new Memory()), heapMem(new Memory()),
+      currentInst(nullptr), incomingBB(nullptr), isError(false) {}
+
+ExecutionState::~ExecutionState() {}

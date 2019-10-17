@@ -40,15 +40,22 @@ unsigned Memory::allocate(unsigned size) {
 }
 
 void Memory::deallocate(unsigned size) { usedSize -= size; }
+
 void Memory::free(unsigned long addr, unsigned size) {}
 
 shared_ptr<DynVal> Memory::readAsInt(unsigned long address,
                                      unsigned bitWidth) const {
   assert(bitWidth <= 64 && "No support for >64-bit int read");
   assert(isAddressLegal(address) && "Memory::readAsInt: illegal address");
-  // TODO: handle reading symbolic value
-  if (symMem.find(address) != symMem.end()) {
+  // read symbolic
+  map<unsigned long, shared_ptr<DynVal>>::const_iterator it =
+      symMem.find(address);
+  if (it != symMem.end()) {
+    assert((it->second->valType == DynValType::INT_VAL) &&
+           "Memory::readAsInt: Invalid memory reading!\n");
+    return it->second;
   }
+  // read concrete
   uint64_t val = 0;
   std::memcpy(&val, concMem + address, bitWidth / 8u);
   return std::make_shared<IntVal>(APInt(bitWidth, val));
@@ -57,6 +64,16 @@ shared_ptr<DynVal> Memory::readAsInt(unsigned long address,
 shared_ptr<DynVal> Memory::readAsFloat(unsigned long address,
                                        bool isDouble) const {
   assert(isAddressLegal(address) && "Memory::readAsFloat: illegal address");
+  // read symbolic
+  map<unsigned long, shared_ptr<DynVal>>::const_iterator it =
+      symMem.find(address);
+  if (it != symMem.end()) {
+    assert((it->second->valType == DynValType::FLOAT_VAL) &&
+           "Memory::readAsFloat: Invalid memory reading!\n");
+    return it->second;
+  }
+
+  // read concrete
   if (isDouble) {
     double val = 0;
     std::memcpy(&val, concMem + address, sizeof(double));
@@ -70,6 +87,16 @@ shared_ptr<DynVal> Memory::readAsFloat(unsigned long address,
 
 shared_ptr<DynVal> Memory::readAsPointer(unsigned long address) const {
   assert(isAddressLegal(address) && "Memory::readAsPointer: illegal address");
+  // read symbolic
+  map<unsigned long, shared_ptr<DynVal>>::const_iterator it =
+      symMem.find(address);
+  if (it != symMem.end()) {
+    assert((it->second->valType == DynValType::POINTER_VAL) &&
+           "Memory::readAsPointer: Invalid memory reading!\n");
+    return it->second;
+  }
+
+  // read concrete
   unsigned long retAddr = 0;
   std::memcpy(&retAddr, concMem + address, PointerVal::PointerSize);
   auto addrSpace = AddressSpace::GLOBAL;
