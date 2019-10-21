@@ -5,5 +5,9 @@ target_sources(sym
     StackFrame.cpp
     StackFrame.h
     ExecutionState.cpp
+    ExecutionStateRun.cpp
+    ExecutionStateConst.cpp
+    ExecutionStateMemory.cpp
+    ExecutionStateExternal.cpp
     ExecutionState.h
 )

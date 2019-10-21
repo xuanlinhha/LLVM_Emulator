@@ -17,10 +17,10 @@ void StructVal::addField(unsigned offset, shared_ptr<DynVal> val) {
   structMap.insert(std::make_pair(offset, std::move(val)));
 }
 
-shared_ptr<DynVal> StructVal::getFieldAtPos(unsigned pos) const {
-  assert((structMap.size() <= pos) &&
+shared_ptr<DynVal> StructVal::getFieldAtOffset(unsigned offset) const {
+  assert((structMap.size() <= offset) &&
          "StructVal::getFieldAtNum: invalid position");
-  return std::next(structMap.begin(), pos)->second;
+  return std::next(structMap.begin(), offset)->second;
 }
 
 void StructVal::print() {

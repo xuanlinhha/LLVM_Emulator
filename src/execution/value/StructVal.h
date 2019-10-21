@@ -18,7 +18,7 @@ public:
   map<unsigned, shared_ptr<DynVal>> structMap; // offset -> value
   unsigned structSize;
   void addField(unsigned offset, shared_ptr<DynVal> val);
-  shared_ptr<DynVal> getFieldAtPos(unsigned num) const;
+  shared_ptr<DynVal> getFieldAtOffset(unsigned offset) const;
 
   virtual void print();
   virtual string toString();

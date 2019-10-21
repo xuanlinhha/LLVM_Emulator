@@ -192,3 +192,9 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
   }
   }
 }
+
+unique_ptr<Memory> Memory::clone() {
+  unsigned char *copyMem = new unsigned char[totalSize];
+  std::memcpy(copyMem, concMem, totalSize);
+  return std::make_unique<Memory>(totalSize, usedSize, copyMem, symMem);
+}
