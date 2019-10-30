@@ -51,7 +51,7 @@ void FloatVal::print() {
 
 string FloatVal::toString() {
   stringstream ss;
-  if (isSym) {
+  if (!isSym) {
     ss << "(FV, " << isDouble << ", " << fpVal << ")";
   } else {
     ss << "(SFV, " << isDouble << ", " << SimVal::symExprTypeName[symExprType]

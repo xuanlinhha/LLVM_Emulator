@@ -28,6 +28,7 @@ shared_ptr<DynVal> ExecutionState::run() {
     switch (currentInst->getOpcode()) {
 
     case Instruction::Br: {
+
       incomingBB = currentInst->getParent();
       auto brInst = cast<BranchInst>(currentInst);
       // un-conditional branch
@@ -39,6 +40,9 @@ shared_ptr<DynVal> ExecutionState::run() {
       // conditional branch
       auto cond =
           std::static_pointer_cast<IntVal>(evalOperand(brInst->getCondition()));
+
+      //      cond->print();
+      //      errs() << " -- cond\n";
 
       // concrete condition
       if (!cond->isSym) {
@@ -52,6 +56,9 @@ shared_ptr<DynVal> ExecutionState::run() {
 
       // symbolic condition
       auto simpCond = CondSimplifier::simplify(pcs, cond);
+
+      //      cond->print();
+      //      errs() << " -- simpCond\n";
 
       // simplification result is concrete
       if (!simpCond->isSym) {

@@ -45,7 +45,7 @@ void IntVal::print() {
 
 string IntVal::toString() {
   stringstream ss;
-  if (isSym) {
+  if (!isSym) {
     ss << "(IV, " << bitWidth << ", " << intVal.getSExtValue() << ")";
   } else {
     ss << "(SIV, " << bitWidth << ", " << SimVal::symExprTypeName[symExprType]

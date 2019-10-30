@@ -24,6 +24,9 @@ public:
   virtual unsigned getBitWidth();
   virtual shared_ptr<SimVal> mulMinusOne();
   virtual shared_ptr<SimVal> combineAddOnce();
+
+  virtual void print();
+  virtual string toString();
 };
 
 #endif /* SRC_EXECUTION_VALUE_POINTERVAL_H_ */
