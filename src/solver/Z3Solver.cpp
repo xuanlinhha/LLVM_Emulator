@@ -11,79 +11,73 @@ Z3Solver::Z3Solver() : s(solver(c)) {}
 
 Z3Solver::~Z3Solver() {}
 
-expr Z3Solver::generateZ3Expr(shared_ptr<DynVal> ex, context &c) {
-  if (ex->valType == DynValType::INT_VAL) {
-    shared_ptr<IntVal> si = std::static_pointer_cast<IntVal>(ex);
-    switch (si->symExprType) {
+expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
+  if (ex->isSym) {
+    switch (ex->symExprType) {
     case SymExprType::VAR: {
-      return c.bv_const(si->name.c_str(), si->bitWidth);
+      return c.bv_const(ex->name.c_str(), ex->getBitWidth());
     }
     case SymExprType::EQ: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l == r);
     }
     case SymExprType::NE: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l != r);
     }
     case SymExprType::ULT:
     case SymExprType::SLT: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l < r);
     }
     case SymExprType::ULE:
     case SymExprType::SLE: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l <= r);
     }
     case SymExprType::UGT:
     case SymExprType::SGT: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l > r);
     }
     case SymExprType::UGE:
     case SymExprType::SGE: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l >= r);
     }
     case SymExprType::ADD: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l + r);
     }
     case SymExprType::SUB: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l - r);
     }
     case SymExprType::MUL: {
-      expr l = generateZ3Expr(si->operands.at(0), c);
-      expr r = generateZ3Expr(si->operands.at(1), c);
+      expr l = generateZ3Expr(ex->operands.at(0), c);
+      expr r = generateZ3Expr(ex->operands.at(1), c);
       return (l * r);
     }
       // TODO: Support more expression types
 
     default: {
       errs() << "Unsupported Expression Conversion!\n";
-      si->print();
+      ex->print();
       errs() << "\n";
     }
     }
     return c.bool_val(false);
-  } else if ((ex->valType == DynValType::INT_VAL)) {
+  } else {
     APInt intVal = static_pointer_cast<IntVal>(ex)->intVal;
     return c.bv_val(*intVal.getRawData(), intVal.getBitWidth());
-  } else {
-    errs() << "Unsupported DynValue Conversion!\n";
-    ex->print();
-    errs() << "\n";
-    return c.bool_val(false);
   }
 }
 

@@ -136,7 +136,9 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
   case ExternalCallType::SYMBOLIC_INT: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<IntVal>(32, SymExprType::VAR, symName.c_str());
+    std::shared_ptr<IntVal> r =
+        std::make_shared<IntVal>(32, SymExprType::VAR, symName.c_str());
+    return std::move(r);
   }
   case ExternalCallType::SYMBOLIC_FLOAT: {
     string symName = readStringFromPointer(

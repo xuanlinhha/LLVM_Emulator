@@ -22,7 +22,7 @@ shared_ptr<SimVal> IntVal::mulMinusOne() { return nullptr; }
 shared_ptr<SimVal> IntVal::combineAddOnce() { return nullptr; }
 
 void IntVal::print() {
-  if (isSym) {
+  if (!isSym) {
     errs() << "(IV, " << bitWidth << ", " << intVal.getSExtValue() << ")";
   } else {
     errs() << "(SIV, " << bitWidth << ", "

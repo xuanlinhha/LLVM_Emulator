@@ -22,7 +22,7 @@ public:
   virtual ~Z3Solver();
   context c;
   solver s;
-  expr generateZ3Expr(shared_ptr<DynVal> ex, context &c);
+  expr generateZ3Expr(shared_ptr<SimVal> ex, context &c);
   Z3SolverResult check(std::map<shared_ptr<IntVal>, bool> &pcs,
                        shared_ptr<IntVal> &q, bool isTrue);
   void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);

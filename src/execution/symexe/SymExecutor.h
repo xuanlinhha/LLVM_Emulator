@@ -10,18 +10,17 @@
 
 #include "Statistics.h"
 #include "execution/searcher/DFS.h"
+#include "execution/state/ExecutionState.h"
 #include "solver/Z3Solver.h"
 #include <llvm/IR/Module.h>
 
-enum class SimulatorParamType { SEARCH, SOLVER, PRINT_PATH };
-
-class ExecutionState;
+enum class SimParamType { SEARCH, SOLVER, PRINT_PATH };
 
 class SymExecutor {
 public:
   SymExecutor();
   virtual ~SymExecutor();
-  map<SimulatorParamType, string> simulatorParams;
+  map<SimParamType, string> simParams;
   static unique_ptr<Searcher> searcher;
   static shared_ptr<ExecutionState> initialState;
   static unique_ptr<Z3Solver> z3Solver;

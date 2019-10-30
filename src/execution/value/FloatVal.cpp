@@ -28,7 +28,7 @@ shared_ptr<SimVal> FloatVal::mulMinusOne() { return nullptr; }
 shared_ptr<SimVal> FloatVal::combineAddOnce() { return nullptr; }
 
 void FloatVal::print() {
-  if (isSym) {
+  if (!isSym) {
     errs() << "(FV, " << isDouble << ", " << fpVal << ")";
   } else {
     errs() << "(SFV, " << isDouble << ", "

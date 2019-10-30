@@ -20,9 +20,12 @@ Statistics::Statistics() {}
 Statistics::~Statistics() {}
 
 void Statistics::printInfo() {
+  errs() << "\n\n\n";
+  errs() << "*********** RESULT ***********\n";
   errs() << "No of Paths: " << noOfpath << "\n";
   errs() << "Running Time: " << runningTime.count() << "\n";
   errs() << "Success Simplify Counter: " << succSimplify << "\n";
   errs() << "Solver Checking Counter: " << solverCheckingCounter << "\n";
   errs() << "Solver Checking Time: " << solverCheckingTime.count() << "\n";
+  errs() << "********* END RESULT *********\n";
 }

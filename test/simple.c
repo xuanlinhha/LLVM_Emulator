@@ -3,7 +3,7 @@
 
 int main() {
   int i;
-  make_symbolic(&i, sizeof(int), "i");
+  symbolic_int("i");
   if (i > 0) {
     printf("i>0\n");
   } else {

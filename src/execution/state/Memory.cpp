@@ -130,42 +130,54 @@ void *Memory::getRawPointerAtAddress(unsigned long address) {
 }
 
 void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
-  // TODO: delete memory in symbolic storage
-  //  symMem.erase(address);
   switch (dynVal->valType) {
   case DynValType::INT_VAL: {
     auto intValue = std::static_pointer_cast<IntVal>(dynVal);
-    assert(intValue->intVal.getBitWidth() <= 64 &&
-           "Memory::write: >64-bit integer is not supported");
-    auto rawData = intValue->intVal.getRawData();
-    memcpy(concMem + address, rawData, intValue->intVal.getBitWidth() / 8);
+    if (intValue->isSym) {
+      symMem[address] = intValue;
+    } else {
+      symMem.erase(address); // erase symbolic value
+      assert(intValue->intVal.getBitWidth() <= 64 &&
+             "Memory::write: >64-bit integer is not supported");
+      auto rawData = intValue->intVal.getRawData();
+      memcpy(concMem + address, rawData, intValue->intVal.getBitWidth() / 8);
+    }
     break;
   }
   case DynValType::FLOAT_VAL: {
     auto floatValue = std::static_pointer_cast<FloatVal>(dynVal);
-    if (floatValue->isDouble) {
-      memcpy(concMem + address, &floatValue->fpVal, sizeof(double));
+    if (floatValue->isSym) {
+      symMem[address] = floatValue;
     } else {
-      memcpy(concMem + address, &floatValue->fpVal, sizeof(float));
+      symMem.erase(address); // erase symbolic value
+      if (floatValue->isDouble) {
+        memcpy(concMem + address, &floatValue->fpVal, sizeof(double));
+      } else {
+        memcpy(concMem + address, &floatValue->fpVal, sizeof(float));
+      }
     }
     break;
   }
   case DynValType::POINTER_VAL: {
-    //  errs() << "Writing " << address << " to " << add << "\n";
     auto pointerValue = std::static_pointer_cast<PointerVal>(dynVal);
-    auto addressVal = pointerValue->address;
-    switch (pointerValue->space) {
-    case AddressSpace::GLOBAL:
-      addressVal |= Memory::GlobalAddressSpaceTag;
-      break;
-    case AddressSpace::STACK:
-      addressVal |= Memory::StackAddressSpaceTag;
-      break;
-    case AddressSpace::HEAP:
-      addressVal |= Memory::HeapAddressSpaceTag;
-      break;
+    if (pointerValue->isSym) {
+      symMem[address] = pointerValue;
+    } else {
+      symMem.erase(address); // erase symbolic value
+      auto addressVal = pointerValue->address;
+      switch (pointerValue->space) {
+      case AddressSpace::GLOBAL:
+        addressVal |= Memory::GlobalAddressSpaceTag;
+        break;
+      case AddressSpace::STACK:
+        addressVal |= Memory::StackAddressSpaceTag;
+        break;
+      case AddressSpace::HEAP:
+        addressVal |= Memory::HeapAddressSpaceTag;
+        break;
+      }
+      memcpy(concMem + address, &addressVal, PointerVal::PointerSize);
     }
-    memcpy(concMem + address, &addressVal, PointerVal::PointerSize);
     break;
   }
   case DynValType::ARRAY_VAL: {

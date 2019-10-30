@@ -12,11 +12,13 @@
 #include "StackFrame.h"
 #include "execution/searcher/Searcher.h"
 #include "execution/symexe/SymExecutor.h"
-#include "llvm/IR/PatternMatch.h"
+#include "simplify/CondSimplifier.h"
 #include <boost/format.hpp>
 #include <llvm/IR/CallSite.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/GetElementPtrTypeIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
+#include <llvm/IR/PatternMatch.h>
 #include <unordered_map>
 
 using namespace std;

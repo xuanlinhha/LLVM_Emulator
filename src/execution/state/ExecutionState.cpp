@@ -9,6 +9,7 @@
 
 Module *ExecutionState::module = nullptr;
 shared_ptr<DataLayout> ExecutionState::dataLayout = nullptr;
+vector<shared_ptr<DynVal>> ExecutionState::mainArgs;
 
 ExecutionState::ExecutionState()
     : globalMem(new Memory()), stackMem(new Memory()), heapMem(new Memory()),
@@ -16,7 +17,165 @@ ExecutionState::ExecutionState()
 
 ExecutionState::~ExecutionState() {}
 
-shared_ptr<DynVal> ExecutionState::run() {}
+shared_ptr<DynVal> ExecutionState::run() {
+  while (!frames.empty()) {
+    // Skip debug instructions
+    if (isa<DbgInfoIntrinsic>(currentInst)) {
+      currentInst = currentInst->getNextNode();
+      continue;
+    }
+
+    switch (currentInst->getOpcode()) {
+
+    case Instruction::Br: {
+      incomingBB = currentInst->getParent();
+      auto brInst = cast<BranchInst>(currentInst);
+      // un-conditional branch
+      if (!brInst->isConditional()) {
+        currentInst = &brInst->getSuccessor(0)->front();
+        break;
+      }
+
+      // conditional branch
+      auto cond =
+          std::static_pointer_cast<IntVal>(evalOperand(brInst->getCondition()));
+
+      // concrete condition
+      if (!cond->isSym) {
+        if (cond->intVal.getBoolValue()) {
+          currentInst = &brInst->getSuccessor(0)->front();
+        } else {
+          currentInst = &brInst->getSuccessor(1)->front();
+        }
+        break;
+      }
+
+      // symbolic condition
+      auto simpCond = CondSimplifier::simplify(pcs, cond);
+
+      // simplification result is concrete
+      if (!simpCond->isSym) {
+        if (simpCond->intVal.getBoolValue()) {
+          currentInst = &brInst->getSuccessor(0)->front();
+        } else {
+          currentInst = &brInst->getSuccessor(1)->front();
+        }
+        break;
+      }
+      // simplification result is symbolic
+      // Check for all X: C(X) => q(X) is True
+      // <=> exist X: C(X) && !q(X) is False
+      // <=> C(X) && !q(X) is UNSAT
+      Z3SolverResult trueValid =
+          SymExecutor::z3Solver->check(pcs, simpCond, false);
+      if (trueValid == Z3SolverResult::UNKNOWN) {
+        // cannot prove validity or not
+        // enable error
+        isError = true;
+      } else if (trueValid == Z3SolverResult::UNSAT) {
+        // continue with true branch
+        currentInst = &brInst->getSuccessor(0)->front();
+      } else {
+        Z3SolverResult falseValid =
+            SymExecutor::z3Solver->check(pcs, simpCond, true);
+        if (trueValid == Z3SolverResult::UNKNOWN) {
+          // enable error
+          isError = true;
+        } else if (falseValid == Z3SolverResult::UNSAT) {
+          // continue with false branch
+          currentInst = &brInst->getSuccessor(1)->front();
+        } else {
+          // add false state to work list
+          std::shared_ptr<ExecutionState> falseState = this->clone();
+          falseState->pcs[simpCond] = false;
+          falseState->currentInst = &brInst->getSuccessor(1)->front();
+          SymExecutor::searcher->insertState(std::move(falseState));
+
+          // add new constraint & continue with true state
+          pcs[simpCond] = true;
+          currentInst = &brInst->getSuccessor(0)->front();
+        }
+      }
+      break;
+    }
+    case Instruction::Switch: {
+      auto switchInst = cast<SwitchInst>(currentInst);
+      auto condVal = evalOperand(switchInst->getCondition());
+      auto const &condInt = std::static_pointer_cast<IntVal>(condVal)->intVal;
+      auto const *destBB = switchInst->getDefaultDest();
+      for (auto &caseItr : switchInst->cases()) {
+        auto const &caseInt = caseItr.getCaseValue()->getValue();
+        if (condInt == caseInt) {
+          destBB = caseItr.getCaseSuccessor();
+          break;
+        }
+      }
+      incomingBB = currentInst->getParent();
+      currentInst = &destBB->front();
+      break;
+    }
+
+    case Instruction::Ret: {
+      auto retInst = cast<ReturnInst>(currentInst);
+      shared_ptr<DynVal> retVal = nullptr;
+      if (auto value = retInst->getReturnValue())
+        retVal = evalOperand(value);
+      popStack();
+      return retVal; // Return to function's caller
+    }
+    default: {
+      executeNonTerminator();
+    }
+    }
+
+    // check if error happen
+    if (isError) {
+      // TODO: Print info
+      break;
+    }
+  }
+
+  return std::make_shared<DynVal>(DynValType::ERROR);
+}
+
+shared_ptr<DynVal> ExecutionState::evalOperand(const llvm::Value *v) {
+  if (auto cv = dyn_cast<Constant>(v)) {
+    return evalConst(cv);
+  } else {
+    return frames.back()->lookup(v);
+  }
+}
+
+Value *ExecutionState::findBasePointer(const Value *val) {
+  if (auto itp = cast<IntToPtrInst>(val)) {
+    Value *srcValue = nullptr;
+    auto op = itp->getOperand(0);
+    if (PatternMatch::match(
+            op, PatternMatch::m_PtrToInt(PatternMatch::m_Value(srcValue)))) {
+      return srcValue->stripPointerCasts();
+    } else if (PatternMatch::match(
+                   op, PatternMatch::m_Add(PatternMatch::m_PtrToInt(
+                                               PatternMatch::m_Value(srcValue)),
+                                           PatternMatch::m_Value()))) {
+      return srcValue->stripPointerCasts();
+    }
+  }
+
+  llvm_unreachable("Unhandled case for findBasePointer()");
+  return nullptr;
+}
+
+void ExecutionState::popStack() {
+  stackMem->deallocate(frames.back()->allocSize);
+  assert(!frames.empty());
+  frames.pop_back();
+}
+
+void ExecutionState::emptyStack() {
+  while (!frames.empty()) {
+    frames.pop_back();
+  }
+}
 
 shared_ptr<ExecutionState> ExecutionState::clone() {
   shared_ptr<ExecutionState> res = std::make_shared<ExecutionState>();
@@ -35,16 +194,4 @@ shared_ptr<ExecutionState> ExecutionState::clone() {
   res->pcs = pcs;
   res->isError = isError;
   return std::move(res);
-}
-
-void ExecutionState::popStack() {
-  stackMem->deallocate(frames.back()->allocSize);
-  assert(!frames.empty());
-  frames.pop_back();
-}
-
-void ExecutionState::emptyStack() {
-  while (!frames.empty()) {
-    frames.pop_back();
-  }
 }

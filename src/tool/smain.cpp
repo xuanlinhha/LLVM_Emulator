@@ -9,6 +9,8 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include "execution/symexe/SymExecutor.h"
+
 using namespace std;
 using namespace llvm;
 
@@ -30,6 +32,20 @@ int main(int argc, char **argv) {
   LLVMContext Context;
   SMDiagnostic Err;
   unique_ptr<Module> mainModule = parseIRFile(InputFile, Err, Context);
+  unique_ptr<SymExecutor> symExecutor = std::make_unique<SymExecutor>();
+
+  // simulator's parameters
+  symExecutor->simParams.insert(
+      std::make_pair(SimParamType::SEARCH, SearchStrategy.getValue()));
+  symExecutor->simParams.insert(
+      std::make_pair(SimParamType::PRINT_PATH, PrintPath.getValue()));
+
+  // program's parameters
+  ProgramParams.insert(ProgramParams.begin(), InputFile);
+
+  // initialize & start
+  symExecutor->initialize(mainModule.get(), ProgramParams);
+  symExecutor->startSym();
 
   return 0;
 }
