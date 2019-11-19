@@ -20,10 +20,11 @@ Solver::~Solver() {}
 ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
                             shared_ptr<IntVal> &q, bool isTrue) {
   SolverResult cr;
-  // check in cache first, if not then call Z3 solver
+  // check in cache first, if not then call Z3 solver & add result to cache
   bool isInCache = cacheSolver->getEntryResult(pcs, q, !isTrue, cr);
   if (!isInCache) {
     cr = z3Solver->check(pcs, q, !isTrue);
+    cacheSolver->addEntry(pcs, q, !isTrue, cr);
   }
   if (cr == SolverResult::UNKNOWN) {
     return ValidResult::UNKNOWN;
