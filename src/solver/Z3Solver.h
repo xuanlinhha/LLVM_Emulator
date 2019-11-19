@@ -8,13 +8,12 @@
 #ifndef SRC_SOLVER_Z3SOLVER_H_
 #define SRC_SOLVER_Z3SOLVER_H_
 
+#include "ResultType.h"
 #include "execution/symexe/Statistics.h"
 #include "execution/value/IntVal.h"
 #include "z3++.h"
 
 using namespace z3;
-
-enum class SolverResult { SAT, UNSAT, UNKNOWN };
 
 class Z3Solver {
 public:

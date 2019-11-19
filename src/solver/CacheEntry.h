@@ -8,8 +8,8 @@
 #ifndef SRC_SOLVER_CACHEENTRY_H_
 #define SRC_SOLVER_CACHEENTRY_H_
 
-#include "Solver.h"
-#include <memory>
+#include "ResultType.h"
+#include "execution/value/IntVal.h"
 
 using namespace std;
 

@@ -8,11 +8,9 @@
 #ifndef SRC_SOLVER_CACHESOLVER_H_
 #define SRC_SOLVER_CACHESOLVER_H_
 
-#include <map>
-#include <vector>
-
 #include "CacheEntry.h"
-#include "Solver.h"
+#include "ResultType.h"
+#include "execution/value/IntVal.h"
 
 using namespace std;
 

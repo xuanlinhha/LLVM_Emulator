@@ -4,5 +4,9 @@ target_sources(sym
     Solver.h
     Z3Solver.cpp
     Z3Solver.h
-    
+    CacheSolver.cpp
+    CacheSolver.h
+    CacheEntry.cpp
+    CacheEntry.h
+    ResultType.h
 )
