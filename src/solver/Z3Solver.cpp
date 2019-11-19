@@ -81,8 +81,8 @@ expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
   }
 }
 
-Z3SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
-                               shared_ptr<IntVal> &q, bool isTrue) {
+SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
+                             shared_ptr<IntVal> &q, bool isTrue) {
   //  for (std::map<shared_ptr<SymIntValue>, bool>::iterator it = pcs.begin(),
   //                                                         ie = pcs.end();
   //       it != ie; ++it) {
@@ -98,7 +98,7 @@ Z3SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
   auto start = std::chrono::high_resolution_clock::now();
 
   s.push();
-  Z3SolverResult res = Z3SolverResult::UNKNOWN;
+  SolverResult res = SolverResult::UNKNOWN;
   for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
                                                     ie = pcs.end();
        it != ie; ++it) {
@@ -118,9 +118,9 @@ Z3SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
   }
   check_result cr = s.check();
   if (cr == sat) {
-    res = Z3SolverResult::SAT;
+    res = SolverResult::SAT;
   } else if (cr == unsat) {
-    res = Z3SolverResult::UNSAT;
+    res = SolverResult::UNSAT;
   }
   s.pop();
 

@@ -11,7 +11,7 @@
 #include "Statistics.h"
 #include "execution/searcher/DFS.h"
 #include "execution/state/ExecutionState.h"
-#include "solver/Z3Solver.h"
+#include "solver/Solver.h"
 #include <llvm/IR/Module.h>
 
 enum class SimParamType { SEARCH, SOLVER, PRINT_PATH };
@@ -23,7 +23,7 @@ public:
   map<SimParamType, string> simParams;
   static unique_ptr<Searcher> searcher;
   static shared_ptr<ExecutionState> initialState;
-  static unique_ptr<Z3Solver> z3Solver;
+  static unique_ptr<Solver> solver;
   void initialize(Module *m, const vector<string> &programParams);
   unique_ptr<Searcher> createSearcher(string searchStrategy);
   shared_ptr<ExecutionState>

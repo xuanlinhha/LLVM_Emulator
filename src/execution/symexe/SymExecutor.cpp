@@ -13,13 +13,13 @@ SymExecutor::~SymExecutor() {}
 
 unique_ptr<Searcher> SymExecutor::searcher = nullptr;
 shared_ptr<ExecutionState> SymExecutor::initialState = nullptr;
-unique_ptr<Z3Solver> SymExecutor::z3Solver = nullptr;
+unique_ptr<Solver> SymExecutor::solver = nullptr;
 
 void SymExecutor::initialize(Module *m,
                              const std::vector<std::string> &programParams) {
   searcher = createSearcher(simParams[SimParamType::SEARCH]);
   initialState = createInitialState(m, programParams);
-  z3Solver = std::make_unique<Z3Solver>();
+  solver = std::make_unique<Solver>();
 }
 
 unique_ptr<Searcher> SymExecutor::createSearcher(string searchStrategy) {
@@ -131,7 +131,7 @@ void SymExecutor::startSym() {
         retVal->print();
         errs() << "\n";
       }
-      z3Solver->printModel(state->pcs);
+      solver->printModel(state->pcs);
       errs() << "======================\n";
     }
   }

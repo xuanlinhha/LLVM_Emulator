@@ -26,9 +26,7 @@ shared_ptr<DynVal> ExecutionState::run() {
     }
 
     switch (currentInst->getOpcode()) {
-
     case Instruction::Br: {
-
       incomingBB = currentInst->getParent();
       auto brInst = cast<BranchInst>(currentInst);
       // un-conditional branch
@@ -70,25 +68,22 @@ shared_ptr<DynVal> ExecutionState::run() {
         break;
       }
       // simplification result is symbolic
-      // Check for all X: C(X) => q(X) is True
-      // <=> exist X: C(X) && !q(X) is False
-      // <=> C(X) && !q(X) is UNSAT
-      Z3SolverResult trueValid =
-          SymExecutor::z3Solver->check(pcs, simpCond, false);
-      if (trueValid == Z3SolverResult::UNKNOWN) {
+      ValidResult trueValid =
+          SymExecutor::solver->isValid(pcs, simpCond, false);
+      if (trueValid == ValidResult::UNKNOWN) {
         // cannot prove validity or not
         // enable error
         isError = true;
-      } else if (trueValid == Z3SolverResult::UNSAT) {
+      } else if (trueValid == ValidResult::YES) {
         // continue with true branch
         currentInst = &brInst->getSuccessor(0)->front();
       } else {
-        Z3SolverResult falseValid =
-            SymExecutor::z3Solver->check(pcs, simpCond, true);
-        if (trueValid == Z3SolverResult::UNKNOWN) {
+        ValidResult falseValid =
+            SymExecutor::solver->isValid(pcs, simpCond, true);
+        if (trueValid == ValidResult::UNKNOWN) {
           // enable error
           isError = true;
-        } else if (falseValid == Z3SolverResult::UNSAT) {
+        } else if (falseValid == ValidResult::YES) {
           // continue with false branch
           currentInst = &brInst->getSuccessor(1)->front();
         } else {

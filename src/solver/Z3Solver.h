@@ -14,7 +14,7 @@
 
 using namespace z3;
 
-enum class Z3SolverResult { SAT, UNSAT, UNKNOWN };
+enum class SolverResult { SAT, UNSAT, UNKNOWN };
 
 class Z3Solver {
 public:
@@ -23,8 +23,8 @@ public:
   context c;
   solver s;
   expr generateZ3Expr(shared_ptr<SimVal> ex, context &c);
-  Z3SolverResult check(std::map<shared_ptr<IntVal>, bool> &pcs,
-                       shared_ptr<IntVal> &q, bool isTrue);
+  SolverResult check(std::map<shared_ptr<IntVal>, bool> &pcs,
+                     shared_ptr<IntVal> &q, bool isTrue);
   void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);
 };
 
