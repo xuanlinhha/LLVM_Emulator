@@ -19,4 +19,4 @@ target_link_libraries(sym PUBLIC ${Z3_LIBRARIES})
 # set relative include path
 include_directories(..)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-stack-protector")
