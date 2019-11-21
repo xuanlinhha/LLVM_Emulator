@@ -70,7 +70,7 @@ expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
 
     default: {
       errs() << "Unsupported Expression Conversion!\n";
-      ex->print();
+      ex->print(&errs());
       errs() << "\n";
     }
     }

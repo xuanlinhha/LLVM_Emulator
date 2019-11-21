@@ -59,12 +59,6 @@ shared_ptr<SimVal> SimVal::mulMinusOne() { return nullptr; }
 
 shared_ptr<SimVal> SimVal::combineAddOnce() { return nullptr; }
 
-void SimVal::print() {
-  errs() << "(SV, " << dynValTypeName[valType] << ", " << isSym << ")";
-}
-
-string SimVal::toString() {
-  stringstream ss;
-  ss << "(SV, " << dynValTypeName[valType] << ", " << isSym << ")";
-  return ss.str();
+void SimVal::print(raw_ostream *os) {
+  *os << "(SV, " << dynValTypeName[valType] << ", " << isSym << ")";
 }

@@ -25,6 +25,8 @@ ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
   if (!isInCache) {
     cr = z3Solver->check(pcs, q, !isTrue);
     cacheSolver->addEntry(pcs, q, !isTrue, cr);
+  } else {
+    ++Statistics::cacheHitCounter;
   }
   if (cr == SolverResult::UNKNOWN) {
     return ValidResult::UNKNOWN;

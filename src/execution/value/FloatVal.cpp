@@ -27,48 +27,26 @@ shared_ptr<SimVal> FloatVal::mulMinusOne() { return nullptr; }
 
 shared_ptr<SimVal> FloatVal::combineAddOnce() { return nullptr; }
 
-void FloatVal::print() {
+void FloatVal::print(raw_ostream *os) {
   if (!isSym) {
-    errs() << "(FV, " << isDouble << ", " << fpVal << ")";
+    *os << "(FV, " << isDouble << ", " << fpVal << ")";
   } else {
-    errs() << "(SFV, " << isDouble << ", "
-           << SimVal::symExprTypeName[symExprType] << "(";
+    *os << "(SFV, " << isDouble << ", " << SimVal::symExprTypeName[symExprType]
+        << "(";
     if (symExprType == SymExprType::VAR) {
-      errs() << name;
+      *os << name << ")";
+      ;
     } else if (!operands.empty()) {
       for (vector<shared_ptr<SimVal>>::iterator it = operands.begin(),
                                                 ie = operands.end();
            it != ie; ++it) {
-        (*it)->print();
+        (*it)->print(os);
         if (std::next(it) != operands.end()) {
-          errs() << ", ";
+          *os << ", ";
         }
       }
+      *os << ")";
     }
-    errs() << ")";
+    *os << ")";
   }
-}
-
-string FloatVal::toString() {
-  stringstream ss;
-  if (!isSym) {
-    ss << "(FV, " << isDouble << ", " << fpVal << ")";
-  } else {
-    ss << "(SFV, " << isDouble << ", " << SimVal::symExprTypeName[symExprType]
-       << "(";
-    if (symExprType == SymExprType::VAR) {
-      ss << name;
-    } else if (!operands.empty()) {
-      for (vector<shared_ptr<SimVal>>::iterator it = operands.begin(),
-                                                ie = operands.end();
-           it != ie; ++it) {
-        ss << (*it)->toString();
-        if (std::next(it) != operands.end()) {
-          ss << ", ";
-        }
-      }
-    }
-    ss << ")";
-  }
-  return ss.str();
 }

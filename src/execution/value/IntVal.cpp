@@ -21,48 +21,25 @@ shared_ptr<SimVal> IntVal::mulMinusOne() { return nullptr; }
 
 shared_ptr<SimVal> IntVal::combineAddOnce() { return nullptr; }
 
-void IntVal::print() {
+void IntVal::print(raw_ostream *os) {
   if (!isSym) {
-    errs() << "(IV, " << bitWidth << ", " << intVal.getSExtValue() << ")";
+    *os << "(IV, " << bitWidth << ", " << intVal.getSExtValue() << ")";
   } else {
-    errs() << "(SIV, " << bitWidth << ", "
-           << SimVal::symExprTypeName[symExprType] << "(";
+    *os << "(SIV, " << bitWidth << ", " << SimVal::symExprTypeName[symExprType]
+        << "(";
     if (symExprType == SymExprType::VAR) {
-      errs() << name;
+      *os << name << ")";
     } else if (!operands.empty()) {
       for (vector<shared_ptr<SimVal>>::iterator it = operands.begin(),
                                                 ie = operands.end();
            it != ie; ++it) {
-        (*it)->print();
+        (*it)->print(os);
         if (std::next(it) != operands.end()) {
-          errs() << ", ";
+          *os << ", ";
         }
       }
+      *os << ")";
     }
-    errs() << ")";
+    *os << ")";
   }
-}
-
-string IntVal::toString() {
-  stringstream ss;
-  if (!isSym) {
-    ss << "(IV, " << bitWidth << ", " << intVal.getSExtValue() << ")";
-  } else {
-    ss << "(SIV, " << bitWidth << ", " << SimVal::symExprTypeName[symExprType]
-       << "(";
-    if (symExprType == SymExprType::VAR) {
-      ss << name;
-    } else if (!operands.empty()) {
-      for (vector<shared_ptr<SimVal>>::iterator it = operands.begin(),
-                                                ie = operands.end();
-           it != ie; ++it) {
-        ss << (*it)->toString();
-        if (std::next(it) != operands.end()) {
-          ss << ", ";
-        }
-      }
-    }
-    ss << ")";
-  }
-  return ss.str();
 }

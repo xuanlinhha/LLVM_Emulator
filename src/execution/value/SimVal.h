@@ -64,8 +64,7 @@ public:
   virtual unsigned getBitWidth();
   virtual shared_ptr<SimVal> mulMinusOne();
   virtual shared_ptr<SimVal> combineAddOnce();
-  virtual void print();
-  virtual string toString();
+  virtual void print(raw_ostream *os);
 };
 
 #endif /* SRC_EXECUTION_VALUE_SIMVAL_H_ */

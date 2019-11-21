@@ -22,10 +22,6 @@ DynVal::DynVal(DynValType vt) : valType(vt) {}
 
 DynVal::~DynVal() {}
 
-void DynVal::print() { errs() << "(DV, " << dynValTypeName[valType] << ")"; };
-
-string DynVal::toString() {
-  stringstream ss;
-  ss << "(DV, " << dynValTypeName[valType] << ")";
-  return ss.str();
-}
+void DynVal::print(raw_ostream *os) {
+  *os << "(DV, " << dynValTypeName[valType] << ")";
+};

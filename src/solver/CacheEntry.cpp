@@ -14,12 +14,16 @@ CacheEntry::CacheEntry(std::map<shared_ptr<IntVal>, bool> &_pcs,
 CacheEntry::~CacheEntry() {}
 
 string CacheEntry::stringify() {
-  stringstream ss;
+  string res;
+  raw_string_ostream ss(res);
   for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
                                                     ie = pcs.end();
        it != ie; ++it) {
-    ss << it->first->toString() << "->" << it->second << ";";
+    it->first->print(&ss);
+    ss << "->" << it->second << ";";
   }
-  ss << q->toString() << "->" << isTrue << ";";
-  return ss.str();
+  q->print(&ss);
+  ss << "->" << isTrue << ";";
+  ss.flush();
+  return res;
 }

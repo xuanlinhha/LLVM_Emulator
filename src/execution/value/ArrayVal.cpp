@@ -21,30 +21,15 @@ shared_ptr<DynVal> ArrayVal::getElementAtIndex(unsigned idx) const {
   return array.at(idx);
 }
 
-void ArrayVal::print() {
-  errs() << "(AV, [";
+void ArrayVal::print(raw_ostream *os) {
+  *os << "(AV, [";
   for (vector<shared_ptr<DynVal>>::iterator it = array.begin(),
                                             ie = array.end();
        it != ie; ++it) {
-    (*it)->print();
+    (*it)->print(os);
     if (std::next(it) != array.end()) {
-      errs() << ", ";
+      *os << ", ";
     }
   }
-  errs() << "])";
-}
-
-string ArrayVal::toString() {
-  stringstream ss;
-  ss << "(AV, [";
-  for (vector<shared_ptr<DynVal>>::iterator it = array.begin(),
-                                            ie = array.end();
-       it != ie; ++it) {
-    ss << (*it)->toString();
-    if (std::next(it) != array.end()) {
-      ss << ", ";
-    }
-  }
-  ss << "])";
-  return ss.str();
+  *os << "])";
 }

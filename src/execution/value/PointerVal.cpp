@@ -24,38 +24,19 @@ shared_ptr<SimVal> PointerVal::mulMinusOne() { return nullptr; }
 
 shared_ptr<SimVal> PointerVal::combineAddOnce() { return nullptr; }
 
-void PointerVal::print() {
+void PointerVal::print(raw_ostream *os) {
   if (!isSym) {
-    errs() << "(PV, " << address << ",";
+    *os << "(PV, " << address << ",";
     if (space == AddressSpace::GLOBAL) {
-      errs() << "GLOBAL)";
+      *os << "GLOBAL)";
     } else if (space == AddressSpace::STACK) {
-      errs() << "STACK)";
+      *os << "STACK)";
     } else if (space == AddressSpace::HEAP) {
-      errs() << "HEAP)";
+      *os << "HEAP)";
     } else {
-      errs() << "UNDEFINED)";
+      *os << "UNDEFINED)";
     }
   } else {
     // TODO: identify space to print
   }
-}
-
-string PointerVal::toString() {
-  std::stringstream ss;
-  if (!isSym) {
-    ss << "(PV, " << address << ",";
-    if (space == AddressSpace::GLOBAL) {
-      ss << "GLOBAL)";
-    } else if (space == AddressSpace::STACK) {
-      ss << "STACK)";
-    } else if (space == AddressSpace::HEAP) {
-      ss << "HEAP)";
-    } else {
-      ss << "UNDEFINED)";
-    }
-  } else {
-    // TODO: identify space to print
-  }
-  return ss.str();
 }

@@ -18,6 +18,7 @@ public:
   Statistics();
   virtual ~Statistics();
   static std::chrono::duration<double> runningTime;
+  static unsigned cacheHitCounter;
   static unsigned solverCheckingCounter;
   static std::chrono::duration<double> solverCheckingTime;
   static unsigned noOfpath;

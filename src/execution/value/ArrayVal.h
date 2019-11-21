@@ -20,8 +20,7 @@ public:
   void setElementAtIndex(unsigned idx, shared_ptr<DynVal> val);
   shared_ptr<DynVal> getElementAtIndex(unsigned idx) const;
 
-  virtual void print();
-  virtual string toString();
+  virtual void print(raw_ostream *os);
 };
 
 #endif /* SRC_EXECUTION_VALUE_ARRAYVAL_H_ */

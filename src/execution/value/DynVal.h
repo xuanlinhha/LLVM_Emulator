@@ -35,8 +35,7 @@ public:
   virtual ~DynVal();
   static std::map<DynValType, string> dynValTypeName;
   DynValType valType;
-  virtual void print();
-  virtual string toString();
+  virtual void print(raw_ostream *os);
 };
 
 #endif /* SRC_EXECUTION_VALUE_DYNVAL_H_ */

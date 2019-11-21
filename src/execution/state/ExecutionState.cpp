@@ -54,7 +54,7 @@ shared_ptr<DynVal> ExecutionState::run() {
 
       // symbolic condition
       auto simpCond = CondSimplifier::simplify(pcs, cond);
-      auto simpCond1 = CondSimplifier::simplify1(pcs, cond);
+      //      auto simpCond1 = CondSimplifier::simplify1(pcs, cond);
 
       //      cond->print();
       //      errs() << " -- simpCond\n";

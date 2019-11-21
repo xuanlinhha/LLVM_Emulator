@@ -20,8 +20,7 @@ public:
   void addField(unsigned offset, shared_ptr<DynVal> val);
   shared_ptr<DynVal> getFieldAtOffset(unsigned offset) const;
 
-  virtual void print();
-  virtual string toString();
+  virtual void print(raw_ostream *os);
 };
 
 #endif /* SRC_EXECUTION_VALUE_STRUCTVAL_H_ */

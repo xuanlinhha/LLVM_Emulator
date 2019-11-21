@@ -23,30 +23,15 @@ shared_ptr<DynVal> StructVal::getFieldAtOffset(unsigned offset) const {
   return std::next(structMap.begin(), offset)->second;
 }
 
-void StructVal::print() {
+void StructVal::print(raw_ostream *os) {
   errs() << "(SV, {";
   for (map<unsigned, shared_ptr<DynVal>>::iterator it = structMap.begin(),
                                                    ie = structMap.end();
        it != ie; ++it) {
-    it->second->print();
+    it->second->print(os);
     if (std::next(it) != structMap.end()) {
-      errs() << ", ";
+      *os << ", ";
     }
   }
-  errs() << "})";
-}
-
-string StructVal::toString() {
-  stringstream ss;
-  ss << "(SV, {";
-  for (map<unsigned, shared_ptr<DynVal>>::iterator it = structMap.begin(),
-                                                   ie = structMap.end();
-       it != ie; ++it) {
-    ss << it->second->toString();
-    if (std::next(it) != structMap.end()) {
-      ss << ", ";
-    }
-  }
-  ss << "})";
-  return ss.str();
+  *os << "})";
 }

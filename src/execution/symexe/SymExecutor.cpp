@@ -128,7 +128,7 @@ void SymExecutor::startSym() {
       if (retVal == nullptr) {
         errs() << "void\n";
       } else {
-        retVal->print();
+        retVal->print(&errs());
         errs() << "\n";
       }
       solver->printModel(state->pcs);
