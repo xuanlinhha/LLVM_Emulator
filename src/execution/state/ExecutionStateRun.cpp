@@ -96,9 +96,8 @@ void ExecutionState::executeNonTerminator() {
       shared_ptr<IntVal> tmp =
           std::make_shared<IntVal>(op0->bitWidth, SymExprType::ADD, "");
       tmp->operands.push_back(op0);
-      tmp->operands.push_back(op0);
+      tmp->operands.push_back(op1);
       frames.back()->insertBinding(currentInst, std::move(tmp));
-
     } else {
       frames.back()->insertBinding(
           currentInst, std::make_shared<IntVal>(op0->intVal + op1->intVal));
