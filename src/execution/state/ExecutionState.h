@@ -10,12 +10,14 @@
 
 #include "Memory.h"
 #include "StackFrame.h"
-#include "execution/searcher/Searcher.h"
-#include "execution/symexe/SymExecutor.h"
-#include "simplify/CondSimplifier.h"
+#include "execution/solver/ResultType.h"
+#include "execution/simplify/CondSimplifier.h"
+#include "execution/solver/Solver.h"
 #include <boost/format.hpp>
 #include <llvm/IR/CallSite.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DataLayout.h>
+#include <llvm/IR/GlobalAlias.h>
 #include <llvm/IR/GetElementPtrTypeIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/PatternMatch.h>
@@ -33,6 +35,8 @@ public:
   static Module *module;
   static shared_ptr<DataLayout> dataLayout;
   static vector<shared_ptr<DynVal>> mainArgs;
+  static unique_ptr<Solver> solver;
+//  static unique_ptr<Searcher> searcher;
 
   //
   std::map<const GlobalValue *, unsigned> globalAddresses;

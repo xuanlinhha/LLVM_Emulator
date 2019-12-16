@@ -28,6 +28,7 @@ cl::list<string> ProgramParams(cl::ConsumeAfter,
 int main(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv, "A simple LLVM symbolic simulator");
 
+  /*
   // prepare module
   LLVMContext Context;
   SMDiagnostic Err;
@@ -46,6 +47,7 @@ int main(int argc, char **argv) {
   // initialize & start
   symExecutor->initialize(mainModule.get(), ProgramParams);
   symExecutor->startSym();
+  */
 
   return 0;
 }

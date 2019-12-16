@@ -10,10 +10,9 @@
 
 #include <memory>
 #include <vector>
+#include "execution/state/ExecutionState.h"
 
 using namespace std;
-
-class ExecutionState;
 
 class Searcher {
 public:
