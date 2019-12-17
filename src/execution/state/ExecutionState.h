@@ -35,8 +35,6 @@ public:
   static Module *module;
   static shared_ptr<DataLayout> dataLayout;
   static vector<shared_ptr<DynVal>> mainArgs;
-  static unique_ptr<Solver> solver;
-  //  static unique_ptr<Searcher> searcher;
 
   //
   std::map<const GlobalValue *, unsigned> globalAddresses;

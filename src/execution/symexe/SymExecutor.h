@@ -21,8 +21,8 @@ public:
   SymExecutor();
   virtual ~SymExecutor();
   map<SimParamType, string> simParams;
-  static unique_ptr<Searcher> searcher;
   static shared_ptr<ExecutionState> initialState;
+  static unique_ptr<Searcher> searcher;
   static unique_ptr<Solver> solver;
   void initialize(Module *m, const vector<string> &programParams);
   unique_ptr<Searcher> createSearcher(string searchStrategy);

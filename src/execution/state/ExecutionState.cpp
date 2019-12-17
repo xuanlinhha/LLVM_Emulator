@@ -6,11 +6,11 @@
  */
 
 #include "ExecutionState.h"
+#include "execution/symexe/SymExecutor.h"
 
 Module *ExecutionState::module = nullptr;
 shared_ptr<DataLayout> ExecutionState::dataLayout = nullptr;
 vector<shared_ptr<DynVal>> ExecutionState::mainArgs;
-unique_ptr<Solver> ExecutionState::solver = nullptr;
 
 ExecutionState::ExecutionState()
     : globalMem(new Memory()), stackMem(new Memory()), heapMem(new Memory()),
@@ -70,7 +70,8 @@ shared_ptr<DynVal> ExecutionState::run() {
         break;
       }
       // simplification result is symbolic
-      ValidResult trueValid = solver->isValid(pcs, simpCond, false);
+      ValidResult trueValid =
+          SymExecutor::solver->isValid(pcs, simpCond, false);
       if (trueValid == ValidResult::UNKNOWN) {
         // cannot prove validity or not
         // enable error
@@ -79,7 +80,8 @@ shared_ptr<DynVal> ExecutionState::run() {
         // continue with true branch
         currentInst = &brInst->getSuccessor(0)->front();
       } else {
-        ValidResult falseValid = solver->isValid(pcs, simpCond, true);
+        ValidResult falseValid =
+            SymExecutor::solver->isValid(pcs, simpCond, true);
         if (trueValid == ValidResult::UNKNOWN) {
           // enable error
           isError = true;
@@ -91,7 +93,7 @@ shared_ptr<DynVal> ExecutionState::run() {
           std::shared_ptr<ExecutionState> falseState = this->clone();
           falseState->pcs[simpCond] = false;
           falseState->currentInst = &brInst->getSuccessor(1)->front();
-          //          searcher->insertState(std::move(falseState));
+          SymExecutor::searcher->insertState(std::move(falseState));
 
           // add new constraint & continue with true state
           pcs[simpCond] = true;
