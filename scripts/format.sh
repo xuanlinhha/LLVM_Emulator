@@ -24,10 +24,10 @@ $CLANG_FORMAT -i $SRC/execution/state/*.h
 $CLANG_FORMAT -i $SRC/execution/state/*.cpp
 $CLANG_FORMAT -i $SRC/execution/value/*.h
 $CLANG_FORMAT -i $SRC/execution/value/*.cpp
-$CLANG_FORMAT -i $SRC/solver/*.h
-$CLANG_FORMAT -i $SRC/solver/*.cpp
-$CLANG_FORMAT -i $SRC/simplify/*.h
-$CLANG_FORMAT -i $SRC/simplify/*.cpp
+$CLANG_FORMAT -i $SRC/execution/solver/*.h
+$CLANG_FORMAT -i $SRC/execution/solver/*.cpp
+$CLANG_FORMAT -i $SRC/execution/simplify/*.h
+$CLANG_FORMAT -i $SRC/execution/simplify/*.cpp
 $CLANG_FORMAT -i $SRC/tool/*.cpp
 $CLANG_FORMAT -i $TEST/*.c
 echo "====================="

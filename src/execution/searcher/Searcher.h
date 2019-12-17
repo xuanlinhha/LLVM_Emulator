@@ -8,9 +8,9 @@
 #ifndef SRC_EXECUTION_SEARCHER_SEARCHER_H_
 #define SRC_EXECUTION_SEARCHER_SEARCHER_H_
 
+#include "execution/state/ExecutionState.h"
 #include <memory>
 #include <vector>
-#include "execution/state/ExecutionState.h"
 
 using namespace std;
 

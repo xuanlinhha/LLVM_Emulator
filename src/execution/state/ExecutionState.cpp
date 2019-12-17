@@ -91,7 +91,7 @@ shared_ptr<DynVal> ExecutionState::run() {
           std::shared_ptr<ExecutionState> falseState = this->clone();
           falseState->pcs[simpCond] = false;
           falseState->currentInst = &brInst->getSuccessor(1)->front();
-//          searcher->insertState(std::move(falseState));
+          //          searcher->insertState(std::move(falseState));
 
           // add new constraint & continue with true state
           pcs[simpCond] = true;

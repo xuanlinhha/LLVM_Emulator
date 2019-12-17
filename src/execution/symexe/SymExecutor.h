@@ -10,8 +10,8 @@
 
 #include "Statistics.h"
 #include "execution/searcher/DFS.h"
-#include "execution/state/ExecutionState.h"
 #include "execution/solver/Solver.h"
+#include "execution/state/ExecutionState.h"
 #include <llvm/IR/Module.h>
 
 enum class SimParamType { SEARCH, SOLVER, PRINT_PATH };
