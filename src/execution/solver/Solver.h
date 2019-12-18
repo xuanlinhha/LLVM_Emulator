@@ -21,7 +21,7 @@ public:
   unique_ptr<CacheSolver> cacheSolver;
   unique_ptr<Z3Solver> z3Solver;
   ValidResult isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
-                      shared_ptr<IntVal> &q, bool isTrue);
+                      shared_ptr<IntVal> &q, bool qval);
   void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);
 };
 

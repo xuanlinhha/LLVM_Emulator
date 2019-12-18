@@ -18,7 +18,7 @@ Solver::~Solver() {}
 // <=> exist X: C(X) && !q(X) is False
 // <=> C(X) && !q(X) is UNSAT
 ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
-                            shared_ptr<IntVal> &q, bool isTrue) {
+                            shared_ptr<IntVal> &q, bool qval) {
   //  SolverResult cr;
   // check in cache first, if not then call Z3 solver & add result to cache
   //  bool isInCache = cacheSolver->getEntryResult(pcs, q, !isTrue, cr);
@@ -29,7 +29,7 @@ ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
   //    ++Statistics::cacheHitCounter;
   //  }
 
-  SolverResult cr = z3Solver->check(pcs, q, !isTrue);
+  SolverResult cr = z3Solver->check(pcs, q, !qval);
   if (cr == SolverResult::UNKNOWN) {
     return ValidResult::UNKNOWN;
   } else if (cr == SolverResult::UNSAT) {

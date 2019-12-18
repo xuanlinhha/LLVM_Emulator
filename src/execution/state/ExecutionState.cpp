@@ -70,7 +70,7 @@ shared_ptr<DynVal> ExecutionState::run() {
 
       // symbolic condition
       ValidResult trueValid =
-          SymExecutor::solver->isValid(pcs, simpCond, false);
+          SymExecutor::solver->isValid(pcs, simpCond, true);
       if (trueValid == ValidResult::UNKNOWN) {
         // cannot prove validity or not
         // enable error
@@ -80,7 +80,7 @@ shared_ptr<DynVal> ExecutionState::run() {
         currentInst = &brInst->getSuccessor(0)->front();
       } else {
         ValidResult falseValid =
-            SymExecutor::solver->isValid(pcs, simpCond, true);
+            SymExecutor::solver->isValid(pcs, simpCond, false);
         if (trueValid == ValidResult::UNKNOWN) {
           // enable error
           isError = true;
