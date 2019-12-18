@@ -15,6 +15,8 @@ std::chrono::duration<double> Statistics::solverCheckingTime =
     std::chrono::duration<double>(0.0);
 unsigned Statistics::noOfpath = 0;
 unsigned Statistics::succSimplify = 0;
+unsigned Statistics::concreteCond = 0;
+unsigned Statistics::symbolicCond = 0;
 
 Statistics::Statistics() {}
 
@@ -32,5 +34,7 @@ void Statistics::printInfo() {
          << "\n";
   errs() << ++order << ". Solver Checking Time: " << solverCheckingTime.count()
          << "\n";
+  errs() << ++order << ". No of concrete condition: " << concreteCond << "\n";
+  errs() << ++order << ". No of symbolic condition: " << symbolicCond << "\n";
   errs() << "********* END RESULT *********\n";
 }

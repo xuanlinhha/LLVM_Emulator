@@ -40,11 +40,12 @@ shared_ptr<DynVal> ExecutionState::run() {
       auto cond =
           std::static_pointer_cast<IntVal>(evalOperand(brInst->getCondition()));
 
-      //      cond->print();
-      //      errs() << " -- cond\n";
+      cond->print(&errs());
+      errs() << "\n";
 
       // concrete condition
       if (!cond->isSym) {
+        ++Statistics::concreteCond;
         if (cond->intVal.getBoolValue()) {
           currentInst = &brInst->getSuccessor(0)->front();
         } else {
@@ -53,23 +54,21 @@ shared_ptr<DynVal> ExecutionState::run() {
         break;
       }
 
+      // simplify symbolic condition
+      //      auto simpCond = CondSimplifier::simplify(pcs, cond);
+      //      if (!simpCond->isSym) {
+      //        if (simpCond->intVal.getBoolValue()) {
+      //          currentInst = &brInst->getSuccessor(0)->front();
+      //        } else {
+      //          currentInst = &brInst->getSuccessor(1)->front();
+      //        }
+      //        break;
+      //      }
+
+      auto simpCond = cond;
+      ++Statistics::symbolicCond;
+
       // symbolic condition
-      auto simpCond = CondSimplifier::simplify(pcs, cond);
-      //      auto simpCond1 = CondSimplifier::simplify1(pcs, cond);
-
-      //      cond->print();
-      //      errs() << " -- simpCond\n";
-
-      // simplification result is concrete
-      if (!simpCond->isSym) {
-        if (simpCond->intVal.getBoolValue()) {
-          currentInst = &brInst->getSuccessor(0)->front();
-        } else {
-          currentInst = &brInst->getSuccessor(1)->front();
-        }
-        break;
-      }
-      // simplification result is symbolic
       ValidResult trueValid =
           SymExecutor::solver->isValid(pcs, simpCond, false);
       if (trueValid == ValidResult::UNKNOWN) {

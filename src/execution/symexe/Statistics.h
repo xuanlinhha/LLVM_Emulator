@@ -23,6 +23,9 @@ public:
   static std::chrono::duration<double> solverCheckingTime;
   static unsigned noOfpath;
   static unsigned succSimplify;
+  static unsigned concreteCond;
+  static unsigned symbolicCond;
+
   static void printInfo();
 };
 
