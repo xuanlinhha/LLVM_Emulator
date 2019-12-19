@@ -34,7 +34,8 @@ CondSimplifier::simplify(std::map<shared_ptr<IntVal>, bool> &pcs,
     it->first->print(&tss);
     tss.flush();
     if (ts == es) {
-      errs() << "Simplify Success: " << es << " -> " << it->second << "\n";
+      //      errs() << "Simplify Success: " << es << " -> " << it->second <<
+      //      "\n";
       ++Statistics::succSimplify;
       return std::make_shared<IntVal>(APInt(1, it->second));
     }

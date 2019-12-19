@@ -39,9 +39,8 @@ shared_ptr<DynVal> ExecutionState::run() {
       // conditional branch
       auto cond =
           std::static_pointer_cast<IntVal>(evalOperand(brInst->getCondition()));
-
-      cond->print(&errs());
-      errs() << "\n";
+      //      cond->print(&errs());
+      //      errs() << "\n";
 
       // concrete condition
       if (!cond->isSym) {
@@ -55,22 +54,20 @@ shared_ptr<DynVal> ExecutionState::run() {
       }
 
       // simplify symbolic condition
-      //      auto simpCond = CondSimplifier::simplify(pcs, cond);
-      //      if (!simpCond->isSym) {
-      //        if (simpCond->intVal.getBoolValue()) {
-      //          currentInst = &brInst->getSuccessor(0)->front();
-      //        } else {
-      //          currentInst = &brInst->getSuccessor(1)->front();
-      //        }
-      //        break;
-      //      }
-
-      auto simpCond = cond;
       ++Statistics::symbolicCond;
+      auto simpCond = CondSimplifier::simplify(pcs, cond);
+      if (!simpCond->isSym) {
+
+        if (simpCond->intVal.getBoolValue()) {
+          currentInst = &brInst->getSuccessor(0)->front();
+        } else {
+          currentInst = &brInst->getSuccessor(1)->front();
+        }
+        break;
+      }
 
       // symbolic condition
-      ValidResult trueValid =
-          SymExecutor::solver->isValid(pcs, simpCond, true);
+      ValidResult trueValid = SymExecutor::solver->isValid(pcs, simpCond, true);
       if (trueValid == ValidResult::UNKNOWN) {
         // cannot prove validity or not
         // enable error

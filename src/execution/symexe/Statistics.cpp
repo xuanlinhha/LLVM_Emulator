@@ -28,13 +28,14 @@ void Statistics::printInfo() {
   errs() << "*********** RESULT ***********\n";
   errs() << ++order << ". No of Paths: " << noOfpath << "\n";
   errs() << ++order << ". Running Time: " << runningTime.count() << "\n";
-  errs() << ++order << ". Success Simplify Counter: " << succSimplify << "\n";
+
   errs() << ++order << ". Cache Hit Counter: " << cacheHitCounter << "\n";
   errs() << ++order << ". Solver Checking Counter: " << solverCheckingCounter
          << "\n";
   errs() << ++order << ". Solver Checking Time: " << solverCheckingTime.count()
          << "\n";
-  errs() << ++order << ". No of concrete condition: " << concreteCond << "\n";
-  errs() << ++order << ". No of symbolic condition: " << symbolicCond << "\n";
+  errs() << ++order << ". No of Concrete Condition: " << concreteCond << "\n";
+  errs() << ++order << ". No of Symbolic Condition: " << symbolicCond << "\n";
+  errs() << ++order << ". Success Simplify Counter: " << succSimplify << "\n";
   errs() << "********* END RESULT *********\n";
 }
