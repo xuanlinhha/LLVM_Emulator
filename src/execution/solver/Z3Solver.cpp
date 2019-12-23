@@ -82,17 +82,7 @@ expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
 }
 
 SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
-                             shared_ptr<IntVal> &q, bool isTrue) {
-  //  for (std::map<shared_ptr<SymIntValue>, bool>::iterator it = pcs.begin(),
-  //                                                         ie = pcs.end();
-  //       it != ie; ++it) {
-  //    it->first->print();
-  //    errs() << "->" << it->second << "\n";
-  //  }
-  //  errs() << "--------------\n";
-  //  q->print();
-  //  errs() << "=>" << isTrue << "\n";
-  //  errs() << "==============\n";
+                             shared_ptr<IntVal> &q, bool qval) {
 
   ++Statistics::solverCheckingCounter;
   auto start = std::chrono::high_resolution_clock::now();
@@ -111,7 +101,7 @@ SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
   }
 
   expr pc = generateZ3Expr(q, c);
-  if (isTrue) {
+  if (qval) {
     s.add(pc);
   } else {
     s.add(not(pc));
@@ -126,6 +116,20 @@ SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
 
   auto finish = std::chrono::high_resolution_clock::now();
   Statistics::solverCheckingTime += (finish - start);
+
+  // for debug
+//  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
+//                                                    ie = pcs.end();
+//       it != ie; ++it) {
+//    it->first->print(&errs());
+//    errs() << "->" << it->second << "\n";
+//  }
+//  errs() << "--------------\n";
+//  q->print(&errs());
+//  errs() << "=>" << qval << "\n";
+//  errs() << "Z3Solver::check pcs size = " << pcs.size() << "\n";
+//  errs() << "Z3Solver::check result = " << getStrResult(res) << "\n";
+//  errs() << "==============\n";
 
   return res;
 }
@@ -154,4 +158,14 @@ void Z3Solver::printModel(std::map<shared_ptr<IntVal>, bool> &pcs) {
     }
   }
   s.pop();
+}
+
+string Z3Solver::getStrResult(SolverResult sr) {
+  if (sr == SolverResult::SAT) {
+    return "SAT";
+  } else if (sr == SolverResult::UNSAT) {
+    return "UNSAT";
+  } else {
+    return "UNKNOWN";
+  }
 }

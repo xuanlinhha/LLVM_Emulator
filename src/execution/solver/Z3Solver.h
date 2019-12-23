@@ -25,6 +25,9 @@ public:
   SolverResult check(std::map<shared_ptr<IntVal>, bool> &pcs,
                      shared_ptr<IntVal> &q, bool isTrue);
   void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);
+
+private:
+  string getStrResult(SolverResult sr);
 };
 
 #endif /* SRC_SOLVER_Z3SOLVER_H_ */
