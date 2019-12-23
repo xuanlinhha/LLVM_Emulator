@@ -11,6 +11,7 @@
 #include "CacheSolver.h"
 #include "ResultType.h"
 #include "Z3Solver.h"
+#include "execution/helper/SymValHelper.h"
 #include "execution/symexe/Statistics.h"
 #include "execution/value/IntVal.h"
 
@@ -20,8 +21,11 @@ public:
   virtual ~Solver();
   unique_ptr<CacheSolver> cacheSolver;
   unique_ptr<Z3Solver> z3Solver;
-  ValidResult isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
-                      shared_ptr<IntVal> &q, bool qval);
+  ValidResult isValid(map<shared_ptr<IntVal>, bool> &pcs, shared_ptr<IntVal> &q,
+                      bool qval);
+  map<shared_ptr<IntVal>, bool>
+  getDependentConstraints(map<shared_ptr<IntVal>, bool> &pcs,
+                          shared_ptr<IntVal> &q);
   void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);
 };
 

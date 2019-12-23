@@ -8,8 +8,8 @@
 #include "CacheEntry.h"
 
 CacheEntry::CacheEntry(std::map<shared_ptr<IntVal>, bool> &_pcs,
-                       shared_ptr<IntVal> &_q, bool _isTrue, SolverResult _sr)
-    : pcs(_pcs), q(_q), isTrue(_isTrue), sr(_sr) {}
+                       shared_ptr<IntVal> &_q, bool _qval)
+    : pcs(_pcs), q(_q), qval(_qval) {}
 
 CacheEntry::~CacheEntry() {}
 
@@ -23,7 +23,7 @@ string CacheEntry::stringify() {
     ss << "->" << it->second << ";";
   }
   q->print(&ss);
-  ss << "->" << isTrue << ";";
+  ss << "->" << qval << ";";
   ss.flush();
   return res;
 }

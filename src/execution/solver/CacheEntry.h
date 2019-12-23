@@ -8,7 +8,6 @@
 #ifndef SRC_SOLVER_CACHEENTRY_H_
 #define SRC_SOLVER_CACHEENTRY_H_
 
-#include "ResultType.h"
 #include "execution/value/IntVal.h"
 
 using namespace std;
@@ -16,12 +15,11 @@ using namespace std;
 class CacheEntry {
 public:
   CacheEntry(std::map<shared_ptr<IntVal>, bool> &_pcs, shared_ptr<IntVal> &_q,
-             bool _isTrue, SolverResult sr);
+             bool _qval);
   virtual ~CacheEntry();
   std::map<shared_ptr<IntVal>, bool> pcs;
   shared_ptr<IntVal> q;
-  bool isTrue;
-  SolverResult sr;
+  bool qval;
   string stringify();
 };
 
