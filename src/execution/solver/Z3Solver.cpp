@@ -118,18 +118,18 @@ SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
   Statistics::solverCheckingTime += (finish - start);
 
   // for debug
-//  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
-//                                                    ie = pcs.end();
-//       it != ie; ++it) {
-//    it->first->print(&errs());
-//    errs() << "->" << it->second << "\n";
-//  }
-//  errs() << "--------------\n";
-//  q->print(&errs());
-//  errs() << "=>" << qval << "\n";
-//  errs() << "Z3Solver::check pcs size = " << pcs.size() << "\n";
-//  errs() << "Z3Solver::check result = " << getStrResult(res) << "\n";
-//  errs() << "==============\n";
+  //  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
+  //                                                    ie = pcs.end();
+  //       it != ie; ++it) {
+  //    it->first->print(&errs());
+  //    errs() << "->" << it->second << "\n";
+  //  }
+  //  errs() << "--------------\n";
+  //  q->print(&errs());
+  //  errs() << "=>" << qval << "\n";
+  //  errs() << "Z3Solver::check pcs size = " << pcs.size() << "\n";
+  //  errs() << "Z3Solver::check result = " << getStrResult(res) << "\n";
+  //  errs() << "==============\n";
 
   return res;
 }

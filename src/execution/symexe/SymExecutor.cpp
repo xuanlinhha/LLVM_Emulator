@@ -120,7 +120,7 @@ void SymExecutor::startSym() {
     shared_ptr<ExecutionState> state = searcher->getNextState();
     shared_ptr<DynVal> retVal = state->run();
 
-    ++Statistics::noOfpath;
+    ++Statistics::pathCounter;
 
     if (simParams[SimParamType::PRINT_PATH] == "1") {
       errs() << "=== Finished Path ===\n";

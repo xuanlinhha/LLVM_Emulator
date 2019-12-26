@@ -11,6 +11,7 @@
 #include "Memory.h"
 #include "StackFrame.h"
 #include "execution/simplify/CondSimplifier.h"
+#include "execution/simplify/PCSSimplifier.h"
 #include "execution/solver/ResultType.h"
 #include "execution/solver/Solver.h"
 #include <boost/format.hpp>

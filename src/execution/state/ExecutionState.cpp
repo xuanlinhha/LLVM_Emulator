@@ -44,7 +44,7 @@ shared_ptr<DynVal> ExecutionState::run() {
 
       // concrete condition
       if (!cond->isSym) {
-        ++Statistics::concreteCond;
+        ++Statistics::concreteCondCounter;
         if (cond->intVal.getBoolValue()) {
           currentInst = &brInst->getSuccessor(0)->front();
         } else {
@@ -54,8 +54,10 @@ shared_ptr<DynVal> ExecutionState::run() {
       }
 
       // simplify symbolic condition
-      ++Statistics::symbolicCond;
-      auto simpCond = CondSimplifier::simplify(pcs, cond);
+      ++Statistics::symbolicCondCounter;
+      auto simplifiedPCS = PCSSimplifier::getDependentConstraints(pcs, cond);
+      auto simpCond = CondSimplifier::simplify(simplifiedPCS, cond);
+
       if (!simpCond->isSym) {
 
         if (simpCond->intVal.getBoolValue()) {

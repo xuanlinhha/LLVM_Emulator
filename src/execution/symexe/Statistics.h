@@ -21,10 +21,10 @@ public:
   static unsigned cacheHitCounter;
   static unsigned solverCheckingCounter;
   static std::chrono::duration<double> solverCheckingTime;
-  static unsigned noOfpath;
-  static unsigned succSimplify;
-  static unsigned concreteCond;
-  static unsigned symbolicCond;
+  static unsigned pathCounter;
+  static unsigned succSimplificationCounter;
+  static unsigned concreteCondCounter;
+  static unsigned symbolicCondCounter;
 
   static void printInfo();
 };

@@ -13,10 +13,10 @@ unsigned Statistics::solverCheckingCounter = 0;
 unsigned Statistics::cacheHitCounter = 0;
 std::chrono::duration<double> Statistics::solverCheckingTime =
     std::chrono::duration<double>(0.0);
-unsigned Statistics::noOfpath = 0;
-unsigned Statistics::succSimplify = 0;
-unsigned Statistics::concreteCond = 0;
-unsigned Statistics::symbolicCond = 0;
+unsigned Statistics::pathCounter = 0;
+unsigned Statistics::succSimplificationCounter = 0;
+unsigned Statistics::concreteCondCounter = 0;
+unsigned Statistics::symbolicCondCounter = 0;
 
 Statistics::Statistics() {}
 
@@ -26,16 +26,19 @@ void Statistics::printInfo() {
   int order = 0;
   errs() << "\n\n\n";
   errs() << "*********** RESULT ***********\n";
-  errs() << ++order << ". No of Paths: " << noOfpath << "\n";
   errs() << ++order << ". Running Time: " << runningTime.count() << "\n";
-
-  errs() << ++order << ". Cache Hit Counter: " << cacheHitCounter << "\n";
-  errs() << ++order << ". Solver Checking Counter: " << solverCheckingCounter
+  errs() << ++order << ". No of Paths: " << pathCounter << "\n";
+  errs() << ++order << ". No. of Cache Hit: " << cacheHitCounter << "\n";
+  errs() << ++order << ". No. of Solver Checking: " << solverCheckingCounter
          << "\n";
   errs() << ++order << ". Solver Checking Time: " << solverCheckingTime.count()
          << "\n";
-  errs() << ++order << ". No of Concrete Condition: " << concreteCond << "\n";
-  errs() << ++order << ". No of Symbolic Condition: " << symbolicCond << "\n";
-  errs() << ++order << ". Success Simplify Counter: " << succSimplify << "\n";
+  errs() << ++order << ". No. of Concrete Condition: " << concreteCondCounter
+         << "\n";
+  errs() << ++order << ". No. of Symbolic Condition: " << symbolicCondCounter
+         << "\n";
+  errs() << ++order
+         << ". No. of Success Simplification: " << succSimplificationCounter
+         << "\n";
   errs() << "********* END RESULT *********\n";
 }

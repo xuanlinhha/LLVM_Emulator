@@ -19,7 +19,8 @@ Solver::~Solver() {}
 // <=> C(X) && !q(X) is UNSAT
 ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
                             shared_ptr<IntVal> &q, bool qval) {
-  map<shared_ptr<IntVal>, bool> newPcs = getDependentConstraints(pcs, q);
+  map<shared_ptr<IntVal>, bool> newPcs =
+      PCSSimplifier::getDependentConstraints(pcs, q);
 
   SolverResult cr;
   // check in cache first, if not then call Z3 solver & add result to cache
@@ -38,27 +39,6 @@ ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
   } else {
     return ValidResult::NO;
   }
-}
-
-map<shared_ptr<IntVal>, bool>
-Solver::getDependentConstraints(map<shared_ptr<IntVal>, bool> &pcs,
-                                shared_ptr<IntVal> &q) {
-
-  // extract dependent constraints
-  vector<shared_ptr<IntVal>> worklist;
-  for (map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(), ie = pcs.end();
-       it != ie; ++it) {
-    worklist.push_back(it->first);
-  }
-  vector<shared_ptr<IntVal>> dependentEles =
-      SymValHelper::getDependentEles(worklist, q);
-  map<shared_ptr<IntVal>, bool> result;
-  for (vector<shared_ptr<IntVal>>::iterator it = dependentEles.begin(),
-                                            ie = dependentEles.end();
-       it != ie; ++it) {
-    result[*it] = pcs[*it];
-  }
-  return result;
 }
 
 void Solver::printModel(std::map<shared_ptr<IntVal>, bool> &pcs) {
