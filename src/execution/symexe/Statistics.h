@@ -17,14 +17,27 @@ class Statistics {
 public:
   Statistics();
   virtual ~Statistics();
+  // common
   static std::chrono::duration<double> runningTime;
-  static unsigned cacheHitCounter;
-  static unsigned solverCheckingCounter;
-  static std::chrono::duration<double> solverCheckingTime;
   static unsigned pathCounter;
-  static unsigned succSimplificationCounter;
-  static unsigned concreteCondCounter;
-  static unsigned symbolicCondCounter;
+
+  // simplification
+  static unsigned concCondCounter;
+  static unsigned symCondCounter;
+  static unsigned succSimpCounter;
+
+  // solver
+  static unsigned cacheHitCounter;
+  static unsigned solverCheckCounter;
+  static std::chrono::duration<double> solverTime;
+
+  static unsigned trueValidCounter;
+  static unsigned trueNotValidCounter;
+  static unsigned trueUnknownCounter;
+
+  static unsigned falseValidCounter;
+  static unsigned falseNotValidCounter;
+  static unsigned falseUnknownCounter;
 
   static void printInfo();
 };

@@ -9,14 +9,24 @@
 
 std::chrono::duration<double> Statistics::runningTime =
     std::chrono::duration<double>(0.0);
-unsigned Statistics::solverCheckingCounter = 0;
-unsigned Statistics::cacheHitCounter = 0;
-std::chrono::duration<double> Statistics::solverCheckingTime =
-    std::chrono::duration<double>(0.0);
 unsigned Statistics::pathCounter = 0;
-unsigned Statistics::succSimplificationCounter = 0;
-unsigned Statistics::concreteCondCounter = 0;
-unsigned Statistics::symbolicCondCounter = 0;
+
+unsigned Statistics::concCondCounter = 0;
+unsigned Statistics::symCondCounter = 0;
+unsigned Statistics::succSimpCounter = 0;
+
+unsigned Statistics::cacheHitCounter = 0;
+unsigned Statistics::solverCheckCounter = 0;
+std::chrono::duration<double> Statistics::solverTime =
+    std::chrono::duration<double>(0.0);
+
+unsigned Statistics::trueUnknownCounter = 0;
+unsigned Statistics::trueValidCounter = 0;
+unsigned Statistics::trueNotValidCounter = 0;
+
+unsigned Statistics::falseUnknownCounter = 0;
+unsigned Statistics::falseValidCounter = 0;
+unsigned Statistics::falseNotValidCounter = 0;
 
 Statistics::Statistics() {}
 
@@ -27,18 +37,27 @@ void Statistics::printInfo() {
   errs() << "\n\n\n";
   errs() << "*********** RESULT ***********\n";
   errs() << ++order << ". Running Time: " << runningTime.count() << "\n";
-  errs() << ++order << ". No of Paths: " << pathCounter << "\n";
-  errs() << ++order << ". No. of Cache Hit: " << cacheHitCounter << "\n";
-  errs() << ++order << ". No. of Solver Checking: " << solverCheckingCounter
+  errs() << ++order << ". Paths: " << pathCounter << "\n";
+
+  errs() << ++order << ". Concrete Condition: " << concCondCounter << "\n";
+  errs() << ++order << ". Symbolic Condition: " << symCondCounter << "\n";
+  errs() << ++order << ". Success Simplification: " << succSimpCounter << "\n";
+
+  errs() << ++order << ". Cache Hit: " << cacheHitCounter << "\n";
+  errs() << ++order << ". Solver Checking: " << solverCheckCounter << "\n";
+  errs() << ++order << ". Solver Checking Time: " << solverTime.count() << "\n";
+
+  errs() << ++order << ". True Unknown Condition: " << trueUnknownCounter
          << "\n";
-  errs() << ++order << ". Solver Checking Time: " << solverCheckingTime.count()
+  errs() << ++order << ". True Valid Condition: " << trueValidCounter << "\n";
+  errs() << ++order << ". True Invalid Condition: " << trueNotValidCounter
          << "\n";
-  errs() << ++order << ". No. of Concrete Condition: " << concreteCondCounter
+
+  errs() << ++order << ". False Unknown Condition: " << falseUnknownCounter
          << "\n";
-  errs() << ++order << ". No. of Symbolic Condition: " << symbolicCondCounter
+  errs() << ++order << ". False Valid Condition: " << falseValidCounter << "\n";
+  errs() << ++order << ". False Invalid Condition: " << falseNotValidCounter
          << "\n";
-  errs() << ++order
-         << ". No. of Success Simplification: " << succSimplificationCounter
-         << "\n";
+
   errs() << "********* END RESULT *********\n";
 }

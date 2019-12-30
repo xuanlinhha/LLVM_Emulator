@@ -36,7 +36,7 @@ CondSimplifier::simplify(std::map<shared_ptr<IntVal>, bool> &pcs,
     if (ts == es) {
       //      errs() << "Simplify Success: " << es << " -> " << it->second <<
       //      "\n";
-      ++Statistics::succSimplificationCounter;
+      ++Statistics::succSimpCounter;
       return std::make_shared<IntVal>(APInt(1, it->second));
     }
   }

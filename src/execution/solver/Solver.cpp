@@ -19,15 +19,12 @@ Solver::~Solver() {}
 // <=> C(X) && !q(X) is UNSAT
 ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
                             shared_ptr<IntVal> &q, bool qval) {
-  map<shared_ptr<IntVal>, bool> newPcs =
-      PCSSimplifier::getDependentConstraints(pcs, q);
-
   SolverResult cr;
   // check in cache first, if not then call Z3 solver & add result to cache
-  bool isInCache = cacheSolver->getEntryResult(newPcs, q, !qval, cr);
+  bool isInCache = cacheSolver->getEntryResult(pcs, q, !qval, cr);
   if (!isInCache) {
-    cr = z3Solver->check(newPcs, q, !qval);
-    cacheSolver->addEntry(newPcs, q, !qval, cr);
+    cr = z3Solver->check(pcs, q, !qval);
+    cacheSolver->addEntry(pcs, q, !qval, cr);
   } else {
     ++Statistics::cacheHitCounter;
   }

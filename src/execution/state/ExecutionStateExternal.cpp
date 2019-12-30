@@ -14,10 +14,15 @@ enum class ExternalCallType {
   MEMSET,
   MALLOC,
   FREE,
+  // make symbolic
+  SYMBOLIC_BOOL,
   SYMBOLIC_CHAR,
   SYMBOLIC_INT,
   SYMBOLIC_FLOAT,
-  SYMBOLIC_POINTER
+  SYMBOLIC_DOUBLE,
+  SYMBOLIC_POINTER,
+  SYMBOLIC_SHORT,
+  SYMBOLIC_LONG
 };
 
 shared_ptr<DynVal>
@@ -35,10 +40,14 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
       {"malloc", ExternalCallType::MALLOC},
       {"free", ExternalCallType::FREE},
       // symbolic & checking
+      {"symbolic_bool", ExternalCallType::SYMBOLIC_BOOL},
       {"symbolic_char", ExternalCallType::SYMBOLIC_CHAR},
       {"symbolic_int", ExternalCallType::SYMBOLIC_INT},
       {"symbolic_float", ExternalCallType::SYMBOLIC_FLOAT},
-      {"symbolic_pointer", ExternalCallType::SYMBOLIC_POINTER}};
+      {"symbolic_double", ExternalCallType::SYMBOLIC_DOUBLE},
+      {"symbolic_pointer", ExternalCallType::SYMBOLIC_POINTER},
+      {"symbolic_short", ExternalCallType::SYMBOLIC_SHORT},
+      {"symbolic_long", ExternalCallType::SYMBOLIC_LONG}};
 
   auto getRawPointer = [this](const shared_ptr<PointerVal> ptr) {
     switch (ptr->space) {
@@ -128,16 +137,23 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
   }
 
   // make symbolic
+  case ExternalCallType::SYMBOLIC_BOOL: {
+    string symName = readStringFromPointer(
+        std::static_pointer_cast<PointerVal>(argValues.at(0)));
+    return std::make_shared<IntVal>(sizeof(bool), SymExprType::VAR,
+                                    symName.c_str());
+  }
   case ExternalCallType::SYMBOLIC_CHAR: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<IntVal>(8, SymExprType::VAR, symName.c_str());
+    return std::make_shared<IntVal>(sizeof(char), SymExprType::VAR,
+                                    symName.c_str());
   }
   case ExternalCallType::SYMBOLIC_INT: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    std::shared_ptr<IntVal> r =
-        std::make_shared<IntVal>(32, SymExprType::VAR, symName.c_str());
+    std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
+        sizeof(int), SymExprType::VAR, symName.c_str());
     return std::move(r);
   }
   case ExternalCallType::SYMBOLIC_FLOAT: {
@@ -145,10 +161,29 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
     return std::make_shared<FloatVal>(SymExprType::VAR, symName.c_str(), false);
   }
+  case ExternalCallType::SYMBOLIC_DOUBLE: {
+    string symName = readStringFromPointer(
+        std::static_pointer_cast<PointerVal>(argValues.at(0)));
+    return std::make_shared<FloatVal>(SymExprType::VAR, symName.c_str(), true);
+  }
   case ExternalCallType::SYMBOLIC_POINTER: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
     return std::make_shared<PointerVal>(SymExprType::VAR, symName.c_str());
+  }
+  case ExternalCallType::SYMBOLIC_SHORT: {
+    string symName = readStringFromPointer(
+        std::static_pointer_cast<PointerVal>(argValues.at(0)));
+    std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
+        sizeof(short), SymExprType::VAR, symName.c_str());
+    return std::move(r);
+  }
+  case ExternalCallType::SYMBOLIC_LONG: {
+    string symName = readStringFromPointer(
+        std::static_pointer_cast<PointerVal>(argValues.at(0)));
+    std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
+        sizeof(long), SymExprType::VAR, symName.c_str());
+    return std::move(r);
   }
   }
   llvm_unreachable("Should not reach here");

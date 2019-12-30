@@ -44,7 +44,7 @@ shared_ptr<DynVal> ExecutionState::run() {
 
       // concrete condition
       if (!cond->isSym) {
-        ++Statistics::concreteCondCounter;
+        ++Statistics::concCondCounter;
         if (cond->intVal.getBoolValue()) {
           currentInst = &brInst->getSuccessor(0)->front();
         } else {
@@ -54,12 +54,11 @@ shared_ptr<DynVal> ExecutionState::run() {
       }
 
       // simplify symbolic condition
-      ++Statistics::symbolicCondCounter;
+      ++Statistics::symCondCounter;
       auto simplifiedPCS = PCSSimplifier::getDependentConstraints(pcs, cond);
       auto simpCond = CondSimplifier::simplify(simplifiedPCS, cond);
 
       if (!simpCond->isSym) {
-
         if (simpCond->intVal.getBoolValue()) {
           currentInst = &brInst->getSuccessor(0)->front();
         } else {
@@ -69,24 +68,33 @@ shared_ptr<DynVal> ExecutionState::run() {
       }
 
       // symbolic condition
-      ValidResult trueValid = SymExecutor::solver->isValid(pcs, simpCond, true);
+      ValidResult trueValid =
+          SymExecutor::solver->isValid(simplifiedPCS, simpCond, true);
       if (trueValid == ValidResult::UNKNOWN) {
+        ++Statistics::trueUnknownCounter;
         // cannot prove validity or not
         // enable error
         isError = true;
+
       } else if (trueValid == ValidResult::YES) {
+        ++Statistics::trueValidCounter;
         // continue with true branch
         currentInst = &brInst->getSuccessor(0)->front();
+
       } else {
+        ++Statistics::trueNotValidCounter;
         ValidResult falseValid =
-            SymExecutor::solver->isValid(pcs, simpCond, false);
+            SymExecutor::solver->isValid(simplifiedPCS, simpCond, false);
         if (trueValid == ValidResult::UNKNOWN) {
+          ++Statistics::falseUnknownCounter;
           // enable error
           isError = true;
         } else if (falseValid == ValidResult::YES) {
+          ++Statistics::falseValidCounter;
           // continue with false branch
           currentInst = &brInst->getSuccessor(1)->front();
         } else {
+          ++Statistics::falseNotValidCounter;
           // add false state to work list
           std::shared_ptr<ExecutionState> falseState = this->clone();
           falseState->pcs[simpCond] = false;
@@ -116,7 +124,6 @@ shared_ptr<DynVal> ExecutionState::run() {
       currentInst = &destBB->front();
       break;
     }
-
     case Instruction::Ret: {
       auto retInst = cast<ReturnInst>(currentInst);
       shared_ptr<DynVal> retVal = nullptr;

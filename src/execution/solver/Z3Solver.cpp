@@ -84,7 +84,7 @@ expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
 SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
                              shared_ptr<IntVal> &q, bool qval) {
 
-  ++Statistics::solverCheckingCounter;
+  ++Statistics::solverCheckCounter;
   auto start = std::chrono::high_resolution_clock::now();
 
   s.push();
@@ -115,7 +115,7 @@ SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
   s.pop();
 
   auto finish = std::chrono::high_resolution_clock::now();
-  Statistics::solverCheckingTime += (finish - start);
+  Statistics::solverTime += (finish - start);
 
   // for debug
   //  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
