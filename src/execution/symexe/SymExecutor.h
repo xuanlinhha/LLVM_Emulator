@@ -14,7 +14,7 @@
 #include "execution/state/ExecutionState.h"
 #include <llvm/IR/Module.h>
 
-enum class SimParamType { SEARCH, SOLVER, PRINT_PATH };
+enum class SimParamType { SEARCH, SOLVER, PRINT_PATH, ASSERTION_FAIL_LIMIT };
 
 class SymExecutor {
 public:
@@ -24,6 +24,9 @@ public:
   static shared_ptr<ExecutionState> initialState;
   static unique_ptr<Searcher> searcher;
   static unique_ptr<Solver> solver;
+  static unsigned assertFailLimit;
+  static unsigned assertFailCounter;
+  static bool isStop;
   void initialize(Module *m, const vector<string> &programParams);
   unique_ptr<Searcher> createSearcher(string searchStrategy);
   shared_ptr<ExecutionState>

@@ -20,6 +20,10 @@ cl::opt<string> SearchStrategy("search", cl::desc("<Search strategy>"),
 cl::opt<string> PrintPath("print-path", cl::desc("<Print path>"),
                           cl::value_desc("print_path"));
 
+cl::opt<string> AssertFailLimit("assert-fail-limit",
+                                cl::desc("<Assertion Fail Limit>"),
+                                cl::value_desc("print_path"));
+
 cl::opt<string> InputFile(cl::Positional, cl::desc("<bc file>"), cl::init("-"));
 
 cl::list<string> ProgramParams(cl::ConsumeAfter,
@@ -39,6 +43,8 @@ int main(int argc, char **argv) {
       std::make_pair(SimParamType::SEARCH, SearchStrategy.getValue()));
   symExecutor->simParams.insert(
       std::make_pair(SimParamType::PRINT_PATH, PrintPath.getValue()));
+  symExecutor->simParams.insert(std::make_pair(
+      SimParamType::ASSERTION_FAIL_LIMIT, AssertFailLimit.getValue()));
 
   // program's parameters
   ProgramParams.insert(ProgramParams.begin(), InputFile);

@@ -5,16 +5,11 @@ PROJECT=$ROOT/LLVM_Emulator
 SRC=$PROJECT/src
 TEST=$PROJECT/test
 echo "=== PATH ==="
-echo $CLANG_FORMAT
-echo $SRC 
+printf "clang-format: %s\n" "$CLANG_FORMAT"
+printf "src: %s\n" "$SRC"
 echo "============"
 
-echo "=== CLANG COMPILE ==="
-$CLANG -Isrc/include -emit-llvm -c -g -S $TEST/test.c -o $TEST/test.ll
-$CLANG -Isrc/include -emit-llvm -c -g $TEST/test.c -o $TEST/test.bc
-echo "====================="
-
-echo "=== CLANG FORMAT ==="
+echo "=== FORMAT SOURCE CODE ==="
 $CLANG_FORMAT -i $SRC/include/*.h
 $CLANG_FORMAT -i $SRC/execution/symexe/*.h
 $CLANG_FORMAT -i $SRC/execution/symexe/*.cpp
@@ -32,4 +27,14 @@ $CLANG_FORMAT -i $SRC/execution/helper/*.h
 $CLANG_FORMAT -i $SRC/execution/helper/*.cpp
 $CLANG_FORMAT -i $SRC/tool/*.cpp
 $CLANG_FORMAT -i $TEST/*.c
+$CLANG_FORMAT -i $TEST/sv-comp/*.c
+echo "====================="
+
+echo "=== BUILD ==="
+make -j 4
+echo "====================="
+
+echo "=== COMPILE TEST ==="
+$CLANG -Isrc/include -emit-llvm -c -O0 -g -S $TEST/test.c -o $TEST/test.ll
+$CLANG -Isrc/include -emit-llvm -c -O0 -g $TEST/test.c -o $TEST/test.bc
 echo "====================="

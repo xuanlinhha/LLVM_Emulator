@@ -14,10 +14,13 @@
 #include "execution/simplify/PCSSimplifier.h"
 #include "execution/solver/ResultType.h"
 #include "execution/solver/Solver.h"
+#include "llvm/Support/WithColor.h"
 #include <boost/format.hpp>
 #include <llvm/IR/CallSite.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DataLayout.h>
+#include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/IR/DebugLoc.h>
 #include <llvm/IR/GetElementPtrTypeIterator.h>
 #include <llvm/IR/GlobalAlias.h>
 #include <llvm/IR/IntrinsicInst.h>

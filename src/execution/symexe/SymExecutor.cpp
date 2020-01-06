@@ -11,15 +11,22 @@ SymExecutor::SymExecutor() {}
 
 SymExecutor::~SymExecutor() {}
 
-unique_ptr<Searcher> SymExecutor::searcher = nullptr;
 shared_ptr<ExecutionState> SymExecutor::initialState = nullptr;
+unique_ptr<Searcher> SymExecutor::searcher = nullptr;
 unique_ptr<Solver> SymExecutor::solver = nullptr;
+unsigned SymExecutor::assertFailLimit = 0;
+unsigned SymExecutor::assertFailCounter = 0;
+bool SymExecutor::isStop = false;
 
 void SymExecutor::initialize(Module *m,
                              const std::vector<std::string> &programParams) {
   searcher = createSearcher(simParams[SimParamType::SEARCH]);
   initialState = createInitialState(m, programParams);
   solver = std::make_unique<Solver>();
+  if (!simParams[SimParamType::ASSERTION_FAIL_LIMIT].empty()) {
+    assertFailLimit =
+        std::stoul(simParams[SimParamType::ASSERTION_FAIL_LIMIT], nullptr, 0);
+  }
 }
 
 unique_ptr<Searcher> SymExecutor::createSearcher(string searchStrategy) {
@@ -133,6 +140,11 @@ void SymExecutor::startSym() {
       }
       solver->printModel(state->pcs);
       errs() << "======================\n";
+    }
+
+    // stop condition
+    if (isStop) {
+      break;
     }
   }
 

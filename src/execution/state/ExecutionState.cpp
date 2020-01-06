@@ -75,7 +75,8 @@ shared_ptr<DynVal> ExecutionState::run() {
         // cannot prove validity or not
         // enable error
         isError = true;
-
+        WithColor(errs(), HighlightColor::Error)
+            << "solver cannot prove validity or not!\n";
       } else if (trueValid == ValidResult::YES) {
         ++Statistics::trueValidCounter;
         // continue with true branch
@@ -89,6 +90,8 @@ shared_ptr<DynVal> ExecutionState::run() {
           ++Statistics::falseUnknownCounter;
           // enable error
           isError = true;
+          WithColor(errs(), HighlightColor::Error)
+              << "solver cannot prove validity or not!\n";
         } else if (falseValid == ValidResult::YES) {
           ++Statistics::falseValidCounter;
           // continue with false branch

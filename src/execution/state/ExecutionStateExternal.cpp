@@ -6,6 +6,7 @@
  */
 
 #include "ExecutionState.h"
+#include "execution/symexe/SymExecutor.h"
 
 enum class ExternalCallType {
   NOOP,
@@ -22,33 +23,39 @@ enum class ExternalCallType {
   SYMBOLIC_DOUBLE,
   SYMBOLIC_POINTER,
   SYMBOLIC_SHORT,
-  SYMBOLIC_LONG
+  SYMBOLIC_LONG,
+  //
+  TOOL_ASSERT,
+  TOOL_ASSUME
 };
+
+static unordered_map<string, ExternalCallType> externalFuncMap = {
+    {"printf", ExternalCallType::PRINTF},
+    {"memcpy", ExternalCallType::MEMCPY},
+    {"memmove", ExternalCallType::MEMCPY},
+    {"llvm.memcpy.p0i8.p0i8.i32", ExternalCallType::MEMCPY},
+    {"llvm.memcpy.p0i8.p0i8.i64", ExternalCallType::MEMCPY},
+    {"memset", ExternalCallType::MEMSET},
+    {"llvm.memset.p0i8.i32", ExternalCallType::MEMSET},
+    {"llvm.memset.p0i8.i64", ExternalCallType::MEMSET},
+    {"malloc", ExternalCallType::MALLOC},
+    {"free", ExternalCallType::FREE},
+    // symbolic & checking
+    {"symbolic_bool", ExternalCallType::SYMBOLIC_BOOL},
+    {"symbolic_char", ExternalCallType::SYMBOLIC_CHAR},
+    {"symbolic_int", ExternalCallType::SYMBOLIC_INT},
+    {"symbolic_float", ExternalCallType::SYMBOLIC_FLOAT},
+    {"symbolic_double", ExternalCallType::SYMBOLIC_DOUBLE},
+    {"symbolic_pointer", ExternalCallType::SYMBOLIC_POINTER},
+    {"symbolic_short", ExternalCallType::SYMBOLIC_SHORT},
+    {"symbolic_long", ExternalCallType::SYMBOLIC_LONG},
+    //
+    {"tool_assert", ExternalCallType::TOOL_ASSERT},
+    {"tool_assume", ExternalCallType::TOOL_ASSUME}};
 
 shared_ptr<DynVal>
 ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
                                      vector<shared_ptr<DynVal>> argValues) {
-  static unordered_map<string, ExternalCallType> externalFuncMap = {
-      {"printf", ExternalCallType::PRINTF},
-      {"memcpy", ExternalCallType::MEMCPY},
-      {"memmove", ExternalCallType::MEMCPY},
-      {"llvm.memcpy.p0i8.p0i8.i32", ExternalCallType::MEMCPY},
-      {"llvm.memcpy.p0i8.p0i8.i64", ExternalCallType::MEMCPY},
-      {"memset", ExternalCallType::MEMSET},
-      {"llvm.memset.p0i8.i32", ExternalCallType::MEMSET},
-      {"llvm.memset.p0i8.i64", ExternalCallType::MEMSET},
-      {"malloc", ExternalCallType::MALLOC},
-      {"free", ExternalCallType::FREE},
-      // symbolic & checking
-      {"symbolic_bool", ExternalCallType::SYMBOLIC_BOOL},
-      {"symbolic_char", ExternalCallType::SYMBOLIC_CHAR},
-      {"symbolic_int", ExternalCallType::SYMBOLIC_INT},
-      {"symbolic_float", ExternalCallType::SYMBOLIC_FLOAT},
-      {"symbolic_double", ExternalCallType::SYMBOLIC_DOUBLE},
-      {"symbolic_pointer", ExternalCallType::SYMBOLIC_POINTER},
-      {"symbolic_short", ExternalCallType::SYMBOLIC_SHORT},
-      {"symbolic_long", ExternalCallType::SYMBOLIC_LONG}};
-
   auto getRawPointer = [this](const shared_ptr<PointerVal> ptr) {
     switch (ptr->space) {
     case AddressSpace::GLOBAL:
@@ -60,8 +67,12 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
     }
   };
 
-  //  errs() << "START EXTERNAL: " << f->getName() << "\n";
+  // ignore intrinsic function
+  if (f->isIntrinsic()) {
+    return std::make_shared<IntVal>(APInt(32, 0));
+  }
 
+  // handle common functions
   auto itr = externalFuncMap.find(f->getName());
   if (itr == externalFuncMap.end()) {
     errs() << "Unknown external function: " << f->getName() << "\n";
@@ -135,7 +146,6 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
     // TODO: Free memory on heap memory
     return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
   }
-
   // make symbolic
   case ExternalCallType::SYMBOLIC_BOOL: {
     string symName = readStringFromPointer(
@@ -184,6 +194,41 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
     std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
         sizeof(long), SymExprType::VAR, symName.c_str());
     return std::move(r);
+  }
+  //
+  case ExternalCallType::TOOL_ASSUME: {
+    assert(argValues.size() >= 1);
+    errs() << "Assume Function Call:\n";
+    for (unsigned i = 0; i < argValues.size(); ++i) {
+      argValues.at(0)->print(&errs());
+      errs() << "\n";
+    }
+    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+  }
+  case ExternalCallType::TOOL_ASSERT: {
+    assert(argValues.size() >= 1);
+    auto assertExpr = std::static_pointer_cast<IntVal>(argValues[0]);
+    if (!assertExpr->intVal.getBoolValue()) {
+      // terminate current state
+      isError = true;
+      ++Statistics::errorPathCounter;
+
+      // print message
+      const llvm::DebugLoc &debugInfo = currentInst->getDebugLoc();
+      std::string filePath = debugInfo->getFilename();
+      int line = debugInfo->getLine();
+      int column = debugInfo->getColumn();
+      WithColor(errs(), HighlightColor::Error)
+          << "ASSERTION FAIL: in " << filePath << " at line " << line
+          << ", colume " << column << "\n";
+
+      // increase fail counter
+      ++SymExecutor::assertFailCounter;
+      if (SymExecutor::assertFailCounter == SymExecutor::assertFailLimit) {
+        SymExecutor::isStop = true;
+      }
+    }
+    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
   }
   }
   llvm_unreachable("Should not reach here");

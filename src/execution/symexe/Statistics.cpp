@@ -10,6 +10,7 @@
 std::chrono::duration<double> Statistics::runningTime =
     std::chrono::duration<double>(0.0);
 unsigned Statistics::pathCounter = 0;
+unsigned Statistics::errorPathCounter = 0;
 
 unsigned Statistics::concCondCounter = 0;
 unsigned Statistics::symCondCounter = 0;
@@ -34,30 +35,47 @@ Statistics::~Statistics() {}
 
 void Statistics::printInfo() {
   int order = 0;
-  errs() << "\n\n\n";
-  errs() << "*********** RESULT ***********\n";
-  errs() << ++order << ". Running Time: " << runningTime.count() << "\n";
-  errs() << ++order << ". Paths: " << pathCounter << "\n";
 
-  errs() << ++order << ". Concrete Condition: " << concCondCounter << "\n";
-  errs() << ++order << ". Symbolic Condition: " << symCondCounter << "\n";
-  errs() << ++order << ". Success Simplification: " << succSimpCounter << "\n";
+  WithColor(errs(), HighlightColor::String) << "\n\n\n";
+  WithColor(errs(), HighlightColor::String)
+      << "*********** RESULT ***********\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Running Time: " << runningTime.count() << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Paths: " << pathCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Error Paths: " << errorPathCounter << "\n";
 
-  errs() << ++order << ". Cache Hit: " << cacheHitCounter << "\n";
-  errs() << ++order << ". Solver Checking: " << solverCheckCounter << "\n";
-  errs() << ++order << ". Solver Checking Time: " << solverTime.count() << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Concrete Condition: " << concCondCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Symbolic Condition: " << symCondCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Success Simplification: " << succSimpCounter << "\n";
 
-  errs() << ++order << ". True Unknown Condition: " << trueUnknownCounter
-         << "\n";
-  errs() << ++order << ". True Valid Condition: " << trueValidCounter << "\n";
-  errs() << ++order << ". True Invalid Condition: " << trueNotValidCounter
-         << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Cache Hit: " << cacheHitCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Solver Checking: " << solverCheckCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Solver Checking Time: " << solverTime.count() << "\n";
 
-  errs() << ++order << ". False Unknown Condition: " << falseUnknownCounter
-         << "\n";
-  errs() << ++order << ". False Valid Condition: " << falseValidCounter << "\n";
-  errs() << ++order << ". False Invalid Condition: " << falseNotValidCounter
-         << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". True Unknown Condition: " << trueUnknownCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". True Valid Condition: " << trueValidCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". True Invalid Condition: " << trueNotValidCounter << "\n";
 
-  errs() << "********* END RESULT *********\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". False Unknown Condition: " << falseUnknownCounter
+      << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". False Valid Condition: " << falseValidCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". False Invalid Condition: " << falseNotValidCounter
+      << "\n";
+
+  WithColor(errs(), HighlightColor::String)
+      << "********* END RESULT *********\n";
 }

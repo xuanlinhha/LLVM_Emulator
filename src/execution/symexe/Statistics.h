@@ -8,9 +8,9 @@
 #ifndef SRC_EXECUTION_SYMEXE_STATISTICS_H_
 #define SRC_EXECUTION_SYMEXE_STATISTICS_H_
 
+#include "llvm/Support/WithColor.h"
 #include <chrono>
 #include <llvm/Support/raw_ostream.h>
-
 using namespace llvm;
 
 class Statistics {
@@ -20,6 +20,7 @@ public:
   // common
   static std::chrono::duration<double> runningTime;
   static unsigned pathCounter;
+  static unsigned errorPathCounter;
 
   // simplification
   static unsigned concCondCounter;
