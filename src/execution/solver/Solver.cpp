@@ -38,6 +38,25 @@ ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
   }
 }
 
+bool Solver::isPossible(map<shared_ptr<IntVal>, bool> &pcs,
+                        shared_ptr<IntVal> &assume, bool assumeVal) {
+  SolverResult cr;
+  // check in cache first, if not then call Z3 solver & add result to cache
+  bool isInCache = cacheSolver->getEntryResult(pcs, assume, assumeVal, cr);
+  if (!isInCache) {
+    cr = z3Solver->check(pcs, assume, assumeVal);
+    cacheSolver->addEntry(pcs, assume, assumeVal, cr);
+  } else {
+    ++Statistics::cacheHitCounter;
+  }
+
+  if (cr == SolverResult::UNSAT) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 void Solver::printModel(std::map<shared_ptr<IntVal>, bool> &pcs) {
   z3Solver->printModel(pcs);
 }

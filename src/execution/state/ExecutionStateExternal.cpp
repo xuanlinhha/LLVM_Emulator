@@ -150,20 +150,19 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
   case ExternalCallType::SYMBOLIC_BOOL: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<IntVal>(sizeof(bool), SymExprType::VAR,
-                                    symName.c_str());
+    return std::make_shared<IntVal>(1, SymExprType::VAR, symName.c_str());
   }
   case ExternalCallType::SYMBOLIC_CHAR: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<IntVal>(sizeof(char), SymExprType::VAR,
+    return std::make_shared<IntVal>(sizeof(char) * 8, SymExprType::VAR,
                                     symName.c_str());
   }
   case ExternalCallType::SYMBOLIC_INT: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
     std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
-        sizeof(int), SymExprType::VAR, symName.c_str());
+        sizeof(int) * 8, SymExprType::VAR, symName.c_str());
     return std::move(r);
   }
   case ExternalCallType::SYMBOLIC_FLOAT: {
@@ -185,24 +184,44 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
     std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
-        sizeof(short), SymExprType::VAR, symName.c_str());
+        sizeof(short) * 8, SymExprType::VAR, symName.c_str());
     return std::move(r);
   }
   case ExternalCallType::SYMBOLIC_LONG: {
     string symName = readStringFromPointer(
         std::static_pointer_cast<PointerVal>(argValues.at(0)));
     std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
-        sizeof(long), SymExprType::VAR, symName.c_str());
+        sizeof(long) * 8, SymExprType::VAR, symName.c_str());
     return std::move(r);
   }
   //
   case ExternalCallType::TOOL_ASSUME: {
     assert(argValues.size() >= 1);
-    errs() << "Assume Function Call:\n";
-    for (unsigned i = 0; i < argValues.size(); ++i) {
-      argValues.at(0)->print(&errs());
-      errs() << "\n";
+    auto assumeExpr = std::static_pointer_cast<IntVal>(argValues[0]);
+    auto simplifiedPCS =
+        PCSSimplifier::getDependentConstraints(pcs, assumeExpr);
+
+    assumeExpr->print(&errs());
+    errs() << "\n";
+
+    // check for possibility of adding assume condition
+    if (!SymExecutor::solver->isPossible(simplifiedPCS, assumeExpr, true)) {
+      // terminate current state
+      isError = true;
+      ++Statistics::errorPathCounter;
+
+      // print message
+      const llvm::DebugLoc &debugInfo = currentInst->getDebugLoc();
+      std::string filePath = debugInfo->getFilename();
+      int line = debugInfo->getLine();
+      int column = debugInfo->getColumn();
+      WithColor(errs(), HighlightColor::Error)
+          << "INVAID ASSUME: in " << filePath << " at line " << line
+          << ", colume " << column << "\n";
+    } else {
+      pcs.insert(std::make_pair(assumeExpr, true));
     }
+
     return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
   }
   case ExternalCallType::TOOL_ASSERT: {

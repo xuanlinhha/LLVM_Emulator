@@ -24,6 +24,8 @@ public:
   unique_ptr<Z3Solver> z3Solver;
   ValidResult isValid(map<shared_ptr<IntVal>, bool> &pcs, shared_ptr<IntVal> &q,
                       bool qval);
+  bool isPossible(map<shared_ptr<IntVal>, bool> &pcs,
+                  shared_ptr<IntVal> &assume, bool assumeVal);
   void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);
 };
 
