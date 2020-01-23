@@ -12,12 +12,12 @@ StructVal::StructVal(unsigned sz)
 
 StructVal::~StructVal() {}
 
-void StructVal::addField(unsigned offset, shared_ptr<DynVal> val) {
+void StructVal::addField(unsigned offset, DynVal *val) {
   assert(!structMap.count(offset) && "StructVal::addField: invalid offset");
   structMap.insert(std::make_pair(offset, std::move(val)));
 }
 
-shared_ptr<DynVal> StructVal::getFieldAtOffset(unsigned offset) const {
+DynVal *StructVal::getFieldAtOffset(unsigned offset) const {
   assert((structMap.size() <= offset) &&
          "StructVal::getFieldAtNum: invalid position");
   return std::next(structMap.begin(), offset)->second;
@@ -25,8 +25,8 @@ shared_ptr<DynVal> StructVal::getFieldAtOffset(unsigned offset) const {
 
 void StructVal::print(raw_ostream *os) {
   errs() << "(SV, {";
-  for (map<unsigned, shared_ptr<DynVal>>::iterator it = structMap.begin(),
-                                                   ie = structMap.end();
+  for (map<unsigned, DynVal *>::iterator it = structMap.begin(),
+                                         ie = structMap.end();
        it != ie; ++it) {
     it->second->print(os);
     if (std::next(it) != structMap.end()) {

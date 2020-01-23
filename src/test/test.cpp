@@ -6,7 +6,6 @@
  */
 
 #include <iostream>
-#include "basic/Ref.h"
 
 class A {
   unsigned refCount;
@@ -16,5 +15,4 @@ class A {
   };
 };
 int main(int argc, char **argv) {
-	Ref<A> a;
 }

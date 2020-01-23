@@ -11,19 +11,18 @@ CacheSolver::CacheSolver() {}
 
 CacheSolver::~CacheSolver() {}
 
-void CacheSolver::addEntry(std::map<shared_ptr<IntVal>, bool> &pcs,
-                           shared_ptr<IntVal> &q, bool qval, SolverResult sr) {
-  unique_ptr<CacheEntry> entry = std::make_unique<CacheEntry>(pcs, q, qval);
+void CacheSolver::addEntry(std::map<IntVal *, bool> &pcs, IntVal *&q, bool qval,
+                           SolverResult sr) {
+  CacheEntry *entry = new CacheEntry(pcs, q, qval);
   string key = entry->stringify();
   data.insert(std::make_pair(std::move(entry), sr));
   stringCache.insert(std::make_pair(key, sr));
   //  errs() << "Insert Entry with pcs size = " << pcs.size() << "\n";
 }
 
-bool CacheSolver::getEntryResult(std::map<shared_ptr<IntVal>, bool> &pcs,
-                                 shared_ptr<IntVal> &q, bool qval,
-                                 SolverResult &sr) {
-  unique_ptr<CacheEntry> entry = std::make_unique<CacheEntry>(pcs, q, qval);
+bool CacheSolver::getEntryResult(std::map<IntVal *, bool> &pcs, IntVal *&q,
+                                 bool qval, SolverResult &sr) {
+  CacheEntry *entry = new CacheEntry(pcs, q, qval);
   map<string, SolverResult>::iterator it = stringCache.find(entry->stringify());
   if (it != stringCache.end()) {
     sr = it->second;

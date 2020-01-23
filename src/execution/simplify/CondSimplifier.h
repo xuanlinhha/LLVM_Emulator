@@ -15,14 +15,11 @@ class CondSimplifier {
 public:
   CondSimplifier();
   virtual ~CondSimplifier();
-  static shared_ptr<IntVal> simplify(std::map<shared_ptr<IntVal>, bool> &pcs,
-                                     shared_ptr<IntVal> &expr);
-  static shared_ptr<IntVal> simplify1(std::map<shared_ptr<IntVal>, bool> &pcs,
-                                      shared_ptr<IntVal> &expr);
+  static IntVal *simplify(std::map<IntVal *, bool> &pcs, IntVal *&expr);
+  static IntVal *simplify1(std::map<IntVal *, bool> &pcs, IntVal *&expr);
 
-  static shared_ptr<SimVal>
-  replace(shared_ptr<SimVal> &expr,
-          std::map<shared_ptr<SimVal>, shared_ptr<SimVal>> &equalities);
+  static SimVal *replace(SimVal *&expr,
+                         std::map<SimVal *, SimVal *> &equalities);
 };
 
 #endif /* SRC_SIMPLIFY_CONDSIMPLIFIER_H_ */

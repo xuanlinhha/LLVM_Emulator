@@ -20,7 +20,7 @@ class Memory {
 public:
   Memory();
   Memory(unsigned ts, unsigned us, unsigned char *m,
-         map<unsigned long, shared_ptr<DynVal>> &sm);
+         map<unsigned long, DynVal *> &sm);
   virtual ~Memory();
   static const unsigned DEFAULT_SIZE = 0x100000;
   // 11 - Undefined
@@ -35,7 +35,7 @@ public:
   // storage
   unsigned totalSize, usedSize;
   unsigned char *concMem;
-  map<unsigned long, shared_ptr<DynVal>> symMem;
+  map<unsigned long, DynVal *> symMem;
 
   // operations
   void grow();
@@ -43,14 +43,13 @@ public:
   unsigned allocate(unsigned size);
   void deallocate(unsigned size);
   void free(unsigned long address, unsigned size);
-  shared_ptr<DynVal> readAsInt(unsigned long address, unsigned bitWidth) const;
-  shared_ptr<DynVal> readAsFloat(unsigned long address,
-                                 bool isDouble = true) const;
-  shared_ptr<DynVal> readAsPointer(unsigned long address) const;
+  DynVal *readAsInt(unsigned long address, unsigned bitWidth) const;
+  DynVal *readAsFloat(unsigned long address, bool isDouble = true) const;
+  DynVal *readAsPointer(unsigned long address) const;
   string readAsString(unsigned long address);
   void *getRawPointerAtAddress(unsigned long addr);
-  void write(unsigned long address, shared_ptr<DynVal> dynVal);
-  unique_ptr<Memory> clone();
+  void write(unsigned long address, const DynVal *dynVal);
+  Memory *clone();
 };
 
 #endif /* SRC_EXECUTION_STATE_MEMORY_H_ */

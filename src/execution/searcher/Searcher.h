@@ -18,8 +18,8 @@ class Searcher {
 public:
   Searcher();
   virtual ~Searcher();
-  virtual void insertState(shared_ptr<ExecutionState> state) = 0;
-  virtual shared_ptr<ExecutionState> getNextState() = 0;
+  virtual void insertState(ExecutionState *state) = 0;
+  virtual ExecutionState *getNextState() = 0;
   virtual bool isEmpty() = 0;
 };
 

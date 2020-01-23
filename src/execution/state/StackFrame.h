@@ -15,18 +15,17 @@ class StackFrame {
 public:
   StackFrame(const Instruction *c, const Function *f);
   StackFrame(const Instruction *c, const Function *f, unsigned als,
-             vector<shared_ptr<DynVal>> &ars,
-             map<const llvm::Value *, shared_ptr<DynVal>> &rs);
+             vector<DynVal *> &ars, map<const llvm::Value *, DynVal *> &rs);
   virtual ~StackFrame();
   const Instruction *caller;
   const Function *function;
   unsigned allocSize;
-  vector<shared_ptr<DynVal>> args;
-  map<const llvm::Value *, shared_ptr<DynVal>> regs;
-  void insertBinding(const llvm::Value *v, shared_ptr<DynVal> val);
+  vector<DynVal *> args;
+  map<const llvm::Value *, DynVal *> regs;
+  void insertBinding(const llvm::Value *v, DynVal *val);
   bool hasBinding(const llvm::Value *val) const;
-  shared_ptr<DynVal> lookup(const llvm::Value *val);
-  unique_ptr<StackFrame> clone();
+  DynVal *lookup(const llvm::Value *val);
+  StackFrame *clone();
 };
 
 #endif /* SRC_EXECUTION_STATE_STACKFRAME_H_ */

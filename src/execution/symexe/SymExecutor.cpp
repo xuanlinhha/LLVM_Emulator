@@ -11,9 +11,9 @@ SymExecutor::SymExecutor() {}
 
 SymExecutor::~SymExecutor() {}
 
-shared_ptr<ExecutionState> SymExecutor::initialState = nullptr;
-unique_ptr<Searcher> SymExecutor::searcher = nullptr;
-unique_ptr<Solver> SymExecutor::solver = nullptr;
+ExecutionState *SymExecutor::initialState = nullptr;
+Searcher *SymExecutor::searcher = nullptr;
+Solver *SymExecutor::solver = nullptr;
 unsigned SymExecutor::assertFailLimit = 0;
 unsigned SymExecutor::assertFailCounter = 0;
 bool SymExecutor::isStop = false;
@@ -22,31 +22,31 @@ void SymExecutor::initialize(Module *m,
                              const std::vector<std::string> &programParams) {
   searcher = createSearcher(simParams[SimParamType::SEARCH]);
   initialState = createInitialState(m, programParams);
-  solver = std::make_unique<Solver>();
+  solver = new Solver();
   if (!simParams[SimParamType::ASSERTION_FAIL_LIMIT].empty()) {
     assertFailLimit =
         std::stoul(simParams[SimParamType::ASSERTION_FAIL_LIMIT], nullptr, 0);
   }
 }
 
-unique_ptr<Searcher> SymExecutor::createSearcher(string searchStrategy) {
+Searcher *SymExecutor::createSearcher(string searchStrategy) {
   if (searchStrategy == "DFS") {
     errs() << "Using DFS Searcher\n";
-    return std::make_unique<DFS>();
+    return new DFS();
   } else {
     errs() << "Using Default Searcher\n";
-    return std::make_unique<DFS>();
+    return new DFS();
   }
 }
 
-shared_ptr<ExecutionState>
+ExecutionState *
 SymExecutor::createInitialState(Module *m,
                                 const std::vector<std::string> &programParams) {
-  shared_ptr<ExecutionState> state = std::make_shared<ExecutionState>();
+  ExecutionState *state = new ExecutionState();
 
   // module & layout
   ExecutionState::module = m;
-  ExecutionState::dataLayout = std::make_shared<DataLayout>(m);
+  ExecutionState::dataLayout = new DataLayout(m);
 
   // static data
   PointerVal::PointerSize = ExecutionState::dataLayout->getPointerSize();
@@ -58,7 +58,7 @@ SymExecutor::createInitialState(Module *m,
     // allocate & write data
     unsigned globalAddr = state->globalMem->allocate(size);
     if (globalVal.hasInitializer()) {
-      shared_ptr<DynVal> dynVal = state->evalConst(globalVal.getInitializer());
+      DynVal *dynVal = state->evalConst(globalVal.getInitializer());
       state->globalMem->write(globalAddr, dynVal);
     }
     state->globalAddresses.insert(std::make_pair(&globalVal, globalAddr));
@@ -74,25 +74,23 @@ SymExecutor::createInitialState(Module *m,
 
   // main arguments include 2 things: argc & argv
   // argc is a value, don't need to write to memory
-  state->mainArgs.push_back(
-      std::make_shared<IntVal>(APInt(32, programParams.size())));
+  state->mainArgs.push_back(new IntVal(APInt(32, programParams.size())));
 
   // argv & argv[i] are pointer values
   // so we need to write their data to memory
-  shared_ptr<ArrayVal> argvData = std::make_shared<ArrayVal>(
+  ArrayVal *argvData = new ArrayVal(
       ExecutionState::dataLayout->getPointerSize(), programParams.size());
   for (auto const &argStr : programParams) {
     // write argv[i] data to memory & keep its pointer
     auto argvi = state->globalMem->allocate(argStr.size() + 1);
-    argvData->array.push_back(std::make_shared<PointerVal>(
-        argvi, AddressSpace::GLOBAL));  // keep pointer
-    for (auto const argChar : argStr) { // write data of argv[i]
-      state->globalMem->write(argvi,
-                              std::make_shared<IntVal>(APInt(8, argChar)));
+    argvData->array.push_back(
+        new PointerVal(argvi, AddressSpace::GLOBAL)); // keep pointer
+    for (auto const argChar : argStr) {               // write data of argv[i]
+      state->globalMem->write(argvi, new IntVal(APInt(8, argChar)));
       ++argvi;
     }
-    state->globalMem->write(argvi, std::make_shared<IntVal>(APInt(
-                                       8, 0))); // 0 for string termination
+    state->globalMem->write(
+        argvi, new IntVal(APInt(8, 0))); // 0 for string termination
   }
 
   // write argv data to memory & keep its pointer in main arguments
@@ -100,8 +98,7 @@ SymExecutor::createInitialState(Module *m,
       ExecutionState::dataLayout->getPointerSize() * programParams.size());
   state->globalMem->write(argv, argvData);
   // add argv to main arguments
-  state->mainArgs.push_back(
-      std::make_shared<PointerVal>(argv, AddressSpace::GLOBAL));
+  state->mainArgs.push_back(new PointerVal(argv, AddressSpace::GLOBAL));
   return std::move(state);
 }
 
@@ -110,8 +107,8 @@ void SymExecutor::startSym() {
 
   // prepare 1st stack frame for main
   auto mainFn = ExecutionState::module->getFunction("main");
-  initialState->frames.push_back(std::make_unique<StackFrame>(nullptr, mainFn));
-  StackFrame *calleeFrame = initialState->frames.back().get();
+  initialState->frames.push_back(new StackFrame(nullptr, mainFn));
+  StackFrame *calleeFrame = initialState->frames.back();
   unsigned i = 0;
   for (auto it = mainFn->arg_begin(), ie = mainFn->arg_end(); it != ie;
        ++it, ++i) {
@@ -124,8 +121,8 @@ void SymExecutor::startSym() {
 
   while (!searcher->isEmpty()) {
     // pop 1 state from the work list & run
-    shared_ptr<ExecutionState> state = searcher->getNextState();
-    shared_ptr<DynVal> retVal = state->run();
+    ExecutionState *state = searcher->getNextState();
+    DynVal *retVal = state->run();
 
     ++Statistics::pathCounter;
 

@@ -22,8 +22,8 @@ public:
   AddressSpace space;
 
   virtual unsigned getBitWidth();
-  virtual shared_ptr<SimVal> mulMinusOne();
-  virtual shared_ptr<SimVal> combineAddOnce();
+  virtual SimVal *mulMinusOne();
+  virtual SimVal *combineAddOnce();
 
   virtual void print(raw_ostream *os);
 };

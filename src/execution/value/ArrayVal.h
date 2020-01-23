@@ -16,9 +16,9 @@ public:
   virtual ~ArrayVal();
   unsigned elemSize;
   unsigned arraySize;
-  vector<shared_ptr<DynVal>> array;
-  void setElementAtIndex(unsigned idx, shared_ptr<DynVal> val);
-  shared_ptr<DynVal> getElementAtIndex(unsigned idx) const;
+  vector<DynVal *> array;
+  void setElementAtIndex(unsigned idx, DynVal *val);
+  DynVal *getElementAtIndex(unsigned idx) const;
 
   virtual void print(raw_ostream *os);
 };

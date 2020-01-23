@@ -55,9 +55,9 @@ SimVal::~SimVal() {}
 
 unsigned SimVal::getBitWidth() { return 0; }
 
-shared_ptr<SimVal> SimVal::mulMinusOne() { return nullptr; }
+SimVal *SimVal::mulMinusOne() { return nullptr; }
 
-shared_ptr<SimVal> SimVal::combineAddOnce() { return nullptr; }
+SimVal *SimVal::combineAddOnce() { return nullptr; }
 
 void SimVal::print(raw_ostream *os) {
   *os << "(SV, " << dynValTypeName[valType] << ", " << isSym << ")";

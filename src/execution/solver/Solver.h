@@ -20,13 +20,11 @@ class Solver {
 public:
   Solver();
   virtual ~Solver();
-  unique_ptr<CacheSolver> cacheSolver;
-  unique_ptr<Z3Solver> z3Solver;
-  ValidResult isValid(map<shared_ptr<IntVal>, bool> &pcs, shared_ptr<IntVal> &q,
-                      bool qval);
-  bool isPossible(map<shared_ptr<IntVal>, bool> &pcs,
-                  shared_ptr<IntVal> &assume, bool assumeVal);
-  void printModel(std::map<shared_ptr<IntVal>, bool> &pcs);
+  CacheSolver *cacheSolver;
+  Z3Solver *z3Solver;
+  ValidResult isValid(map<IntVal *, bool> &pcs, IntVal *&q, bool qval);
+  bool isPossible(map<IntVal *, bool> &pcs, IntVal *&assume, bool assumeVal);
+  void printModel(std::map<IntVal *, bool> &pcs);
 };
 
 #endif /* SRC_SOLVER_SOLVER_H_ */

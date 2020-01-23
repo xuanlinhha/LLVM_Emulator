@@ -20,9 +20,9 @@ PointerVal::~PointerVal() {}
 
 unsigned PointerVal::getBitWidth() { return PointerSize; }
 
-shared_ptr<SimVal> PointerVal::mulMinusOne() { return nullptr; }
+SimVal *PointerVal::mulMinusOne() { return nullptr; }
 
-shared_ptr<SimVal> PointerVal::combineAddOnce() { return nullptr; }
+SimVal *PointerVal::combineAddOnce() { return nullptr; }
 
 void PointerVal::print(raw_ostream *os) {
   if (!isSym) {

@@ -17,9 +17,9 @@ IntVal::~IntVal() {}
 
 unsigned IntVal::getBitWidth() { return bitWidth; }
 
-shared_ptr<SimVal> IntVal::mulMinusOne() { return nullptr; }
+SimVal *IntVal::mulMinusOne() { return nullptr; }
 
-shared_ptr<SimVal> IntVal::combineAddOnce() { return nullptr; }
+SimVal *IntVal::combineAddOnce() { return nullptr; }
 
 void IntVal::print(raw_ostream *os) {
   if (!isSym) {
@@ -30,8 +30,8 @@ void IntVal::print(raw_ostream *os) {
     if (symExprType == SymExprType::VAR) {
       *os << name << ")";
     } else if (!operands.empty()) {
-      for (vector<shared_ptr<SimVal>>::iterator it = operands.begin(),
-                                                ie = operands.end();
+      for (vector<SimVal *>::iterator it = operands.begin(),
+                                      ie = operands.end();
            it != ie; ++it) {
         (*it)->print(os);
         if (std::next(it) != operands.end()) {

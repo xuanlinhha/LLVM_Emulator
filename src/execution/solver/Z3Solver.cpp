@@ -11,7 +11,7 @@ Z3Solver::Z3Solver() : s(solver(c)) {}
 
 Z3Solver::~Z3Solver() {}
 
-expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
+expr Z3Solver::generateZ3Expr(SimVal *ex, context &c) {
   if (ex->isSym) {
     switch (ex->symExprType) {
     case SymExprType::VAR: {
@@ -76,21 +76,20 @@ expr Z3Solver::generateZ3Expr(shared_ptr<SimVal> ex, context &c) {
     }
     return c.bool_val(false);
   } else {
-    APInt intVal = static_pointer_cast<IntVal>(ex)->intVal;
+    APInt intVal = ((IntVal *)ex)->intVal;
     return c.bv_val(*intVal.getRawData(), intVal.getBitWidth());
   }
 }
 
-SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
-                             shared_ptr<IntVal> &q, bool qval) {
+SolverResult Z3Solver::check(std::map<IntVal *, bool> &pcs, IntVal *&q,
+                             bool qval) {
 
   ++Statistics::solverCheckCounter;
   auto start = std::chrono::high_resolution_clock::now();
 
   s.push();
   SolverResult res = SolverResult::UNKNOWN;
-  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
-                                                    ie = pcs.end();
+  for (std::map<IntVal *, bool>::iterator it = pcs.begin(), ie = pcs.end();
        it != ie; ++it) {
     expr pc = generateZ3Expr(it->first, c);
     if (it->second) {
@@ -134,11 +133,10 @@ SolverResult Z3Solver::check(std::map<shared_ptr<IntVal>, bool> &pcs,
   return res;
 }
 
-void Z3Solver::printModel(std::map<shared_ptr<IntVal>, bool> &pcs) {
+void Z3Solver::printModel(std::map<IntVal *, bool> &pcs) {
   s.push();
   // add path constraints
-  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
-                                                    ie = pcs.end();
+  for (std::map<IntVal *, bool>::iterator it = pcs.begin(), ie = pcs.end();
        it != ie; ++it) {
     expr pc = generateZ3Expr(it->first, c);
     if (it->second) {

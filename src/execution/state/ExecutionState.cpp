@@ -9,8 +9,8 @@
 #include "execution/symexe/SymExecutor.h"
 
 Module *ExecutionState::module = nullptr;
-shared_ptr<DataLayout> ExecutionState::dataLayout = nullptr;
-vector<shared_ptr<DynVal>> ExecutionState::mainArgs;
+DataLayout *ExecutionState::dataLayout = nullptr;
+vector<DynVal *> ExecutionState::mainArgs;
 
 ExecutionState::ExecutionState()
     : globalMem(new Memory()), stackMem(new Memory()), heapMem(new Memory()),
@@ -18,7 +18,7 @@ ExecutionState::ExecutionState()
 
 ExecutionState::~ExecutionState() {}
 
-shared_ptr<DynVal> ExecutionState::run() {
+DynVal *ExecutionState::run() {
   while (!frames.empty()) {
     // Skip debug instructions
     if (isa<DbgInfoIntrinsic>(currentInst)) {
@@ -37,8 +37,7 @@ shared_ptr<DynVal> ExecutionState::run() {
       }
 
       // conditional branch
-      auto cond =
-          std::static_pointer_cast<IntVal>(evalOperand(brInst->getCondition()));
+      auto cond = (IntVal *)evalOperand(brInst->getCondition());
       //      cond->print(&errs());
       //      errs() << "\n";
 
@@ -99,10 +98,10 @@ shared_ptr<DynVal> ExecutionState::run() {
         } else {
           ++Statistics::falseNotValidCounter;
           // add false state to work list
-          std::shared_ptr<ExecutionState> falseState = this->clone();
+          ExecutionState *falseState = this->clone();
           falseState->pcs[simpCond] = false;
           falseState->currentInst = &brInst->getSuccessor(1)->front();
-          SymExecutor::searcher->insertState(std::move(falseState));
+          SymExecutor::searcher->insertState(falseState);
 
           // add new constraint & continue with true state
           pcs[simpCond] = true;
@@ -114,7 +113,7 @@ shared_ptr<DynVal> ExecutionState::run() {
     case Instruction::Switch: {
       auto switchInst = cast<SwitchInst>(currentInst);
       auto condVal = evalOperand(switchInst->getCondition());
-      auto const &condInt = std::static_pointer_cast<IntVal>(condVal)->intVal;
+      auto const &condInt = ((IntVal *)condVal)->intVal;
       auto const *destBB = switchInst->getDefaultDest();
       for (auto &caseItr : switchInst->cases()) {
         auto const &caseInt = caseItr.getCaseValue()->getValue();
@@ -129,7 +128,7 @@ shared_ptr<DynVal> ExecutionState::run() {
     }
     case Instruction::Ret: {
       auto retInst = cast<ReturnInst>(currentInst);
-      shared_ptr<DynVal> retVal = nullptr;
+      DynVal *retVal = nullptr;
       if (auto value = retInst->getReturnValue())
         retVal = evalOperand(value);
       popStack();
@@ -147,10 +146,10 @@ shared_ptr<DynVal> ExecutionState::run() {
     }
   }
 
-  return std::make_shared<DynVal>(DynValType::ERROR);
+  return new DynVal(DynValType::ERROR);
 }
 
-shared_ptr<DynVal> ExecutionState::evalOperand(const llvm::Value *v) {
+DynVal *ExecutionState::evalOperand(const llvm::Value *v) {
   if (auto cv = dyn_cast<Constant>(v)) {
     return evalConst(cv);
   } else {
@@ -189,8 +188,8 @@ void ExecutionState::emptyStack() {
   }
 }
 
-shared_ptr<ExecutionState> ExecutionState::clone() {
-  shared_ptr<ExecutionState> res = std::make_shared<ExecutionState>();
+ExecutionState *ExecutionState::clone() {
+  ExecutionState *res = new ExecutionState();
   res->globalAddresses = globalAddresses;
   res->addressToFunc = addressToFunc;
   res->currentInst = currentInst;
@@ -198,12 +197,11 @@ shared_ptr<ExecutionState> ExecutionState::clone() {
   res->globalMem = globalMem->clone();
   res->stackMem = stackMem->clone();
   res->heapMem = heapMem->clone();
-  for (vector<unique_ptr<StackFrame>>::iterator it = frames.begin(),
-                                                ie = frames.end();
+  for (vector<StackFrame *>::iterator it = frames.begin(), ie = frames.end();
        it != ie; ++it) {
     res->frames.push_back((*it)->clone());
   }
   res->pcs = pcs;
   res->isError = isError;
-  return std::move(res);
+  return res;
 }

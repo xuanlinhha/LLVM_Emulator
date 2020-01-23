@@ -37,48 +37,44 @@ public:
 
   // static data
   static Module *module;
-  static shared_ptr<DataLayout> dataLayout;
-  static vector<shared_ptr<DynVal>> mainArgs;
+  static DataLayout *dataLayout;
+  static vector<DynVal *> mainArgs;
 
   //
   std::map<const GlobalValue *, unsigned> globalAddresses;
   std::map<unsigned, const llvm::Function *> addressToFunc;
-  vector<unique_ptr<StackFrame>> frames;
-  unique_ptr<Memory> globalMem;
-  unique_ptr<Memory> stackMem;
-  unique_ptr<Memory> heapMem;
+  vector<StackFrame *> frames;
+  Memory *globalMem;
+  Memory *stackMem;
+  Memory *heapMem;
   const Instruction *currentInst;
   const BasicBlock *incomingBB;
-  std::map<shared_ptr<IntVal>, bool> pcs;
+  std::map<IntVal *, bool> pcs;
 
   //
   bool isError;
-  shared_ptr<DynVal> run();
+  DynVal *run();
 
   // symbolic execution
   void executeNonTerminator();
-  shared_ptr<DynVal> evalOperand(const Value *v);
+  DynVal *evalOperand(const Value *v);
   unsigned allocateStackMem(unsigned size);
-  void writeToPointer(const shared_ptr<PointerVal> ptr,
-                      const shared_ptr<DynVal> val);
-  shared_ptr<DynVal> readFromPointer(const shared_ptr<PointerVal> ptr,
-                                     Type *loadType);
-  shared_ptr<DynVal> loadValue(unique_ptr<Memory> &mem, unsigned addr,
-                               Type *loadType);
-  shared_ptr<DynVal> callExternalFunction(ImmutableCallSite cs,
-                                          const Function *f,
-                                          vector<shared_ptr<DynVal>> argValues);
-  string readStringFromPointer(const shared_ptr<PointerVal> ptr);
+  void writeToPointer(const PointerVal *ptr, const DynVal *val);
+  DynVal *readFromPointer(const PointerVal *ptr, Type *loadType);
+  DynVal *loadValue(Memory *&mem, unsigned addr, Type *loadType);
+  DynVal *callExternalFunction(ImmutableCallSite cs, const Function *f,
+                               vector<DynVal *> argValues);
+  string readStringFromPointer(const PointerVal *ptr);
 
   // evaluate constant values
-  shared_ptr<DynVal> evalConst(const Constant *cv);
-  shared_ptr<DynVal> evalConstExpr(const ConstantExpr *cexpr);
+  DynVal *evalConst(const Constant *cv);
+  DynVal *evalConstExpr(const ConstantExpr *cexpr);
   Value *findBasePointer(const Value *val);
 
   // stack
   void emptyStack();
   void popStack();
-  shared_ptr<ExecutionState> clone();
+  ExecutionState *clone();
 };
 
 #endif /* SRC_EXECUTION_STATE_EXECUTIONSTATE_H_ */

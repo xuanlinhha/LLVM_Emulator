@@ -11,7 +11,7 @@ SymValHelper::SymValHelper() {}
 
 SymValHelper::~SymValHelper() {}
 
-void SymValHelper::getVars(shared_ptr<SimVal> &si, set<string> &result) {
+void SymValHelper::getVars(SimVal *&si, set<string> &result) {
   if (si->isSym) {
     if (si->symExprType == SymExprType::INVALID) {
       return;
@@ -34,25 +34,23 @@ bool SymValHelper::isIntersect(set<string> &ss1, set<string> &ss2) {
   return false;
 }
 
-vector<shared_ptr<IntVal>>
-SymValHelper::getDependentEles(vector<shared_ptr<IntVal>> &worklist,
-                               shared_ptr<IntVal> &q) {
+vector<IntVal *> SymValHelper::getDependentEles(vector<IntVal *> &worklist,
+                                                IntVal *&q) {
   // set of variables in query
   set<string> vars;
-  shared_ptr<SimVal> t = std::static_pointer_cast<SimVal>(q);
+  SimVal *t = (SimVal *)q;
   SymValHelper::getVars(t, vars);
 
-  vector<shared_ptr<IntVal>> result;
+  vector<IntVal *> result;
   bool stop = false;
   while (!stop) {
     stop = true;
-    vector<shared_ptr<IntVal>> newWorklist;
-    for (vector<shared_ptr<IntVal>>::iterator it = worklist.begin(),
-                                              ie = worklist.end();
+    vector<IntVal *> newWorklist;
+    for (vector<IntVal *>::iterator it = worklist.begin(), ie = worklist.end();
          it != ie; ++it) {
       // get variables set of the current element
       set<string> tmp;
-      shared_ptr<SimVal> t = std::static_pointer_cast<SimVal>(*it);
+      SimVal *t = (SimVal *)*it;
       SymValHelper::getVars(t, tmp);
       if (SymValHelper::isIntersect(vars, tmp)) {
         vars.insert(tmp.begin(), tmp.end());

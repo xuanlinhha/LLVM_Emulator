@@ -23,9 +23,9 @@ unsigned FloatVal::getBitWidth() {
   }
 }
 
-shared_ptr<SimVal> FloatVal::mulMinusOne() { return nullptr; }
+SimVal *FloatVal::mulMinusOne() { return nullptr; }
 
-shared_ptr<SimVal> FloatVal::combineAddOnce() { return nullptr; }
+SimVal *FloatVal::combineAddOnce() { return nullptr; }
 
 void FloatVal::print(raw_ostream *os) {
   if (!isSym) {
@@ -37,8 +37,8 @@ void FloatVal::print(raw_ostream *os) {
       *os << name << ")";
       ;
     } else if (!operands.empty()) {
-      for (vector<shared_ptr<SimVal>>::iterator it = operands.begin(),
-                                                ie = operands.end();
+      for (vector<SimVal *>::iterator it = operands.begin(),
+                                      ie = operands.end();
            it != ie; ++it) {
         (*it)->print(os);
         if (std::next(it) != operands.end()) {

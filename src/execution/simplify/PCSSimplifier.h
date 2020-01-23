@@ -15,9 +15,8 @@ class PCSSimplifier {
 public:
   PCSSimplifier();
   virtual ~PCSSimplifier();
-  static map<shared_ptr<IntVal>, bool>
-  getDependentConstraints(map<shared_ptr<IntVal>, bool> &pcs,
-                          shared_ptr<IntVal> &q);
+  static map<IntVal *, bool> getDependentConstraints(map<IntVal *, bool> &pcs,
+                                                     IntVal *&q);
 };
 
 #endif /* SRC_EXECUTION_SIMPLIFY_PCSSIMPLIFIER_H_ */

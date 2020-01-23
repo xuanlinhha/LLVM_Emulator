@@ -15,9 +15,7 @@ CondSimplifier::~CondSimplifier() {
   // TODO Auto-generated destructor stub
 }
 
-shared_ptr<IntVal>
-CondSimplifier::simplify(std::map<shared_ptr<IntVal>, bool> &pcs,
-                         shared_ptr<IntVal> &expr) {
+IntVal *CondSimplifier::simplify(std::map<IntVal *, bool> &pcs, IntVal *&expr) {
   //  errs() << "Simplify Start!\n";
   if (!expr->isSym) {
     return expr;
@@ -26,8 +24,7 @@ CondSimplifier::simplify(std::map<shared_ptr<IntVal>, bool> &pcs,
   raw_string_ostream ess(es);
   expr->print(&ess);
   ess.flush();
-  for (std::map<shared_ptr<IntVal>, bool>::iterator it = pcs.begin(),
-                                                    ie = pcs.end();
+  for (std::map<IntVal *, bool>::iterator it = pcs.begin(), ie = pcs.end();
        it != ie; ++it) {
     string ts;
     raw_string_ostream tss(ts);
@@ -37,16 +34,15 @@ CondSimplifier::simplify(std::map<shared_ptr<IntVal>, bool> &pcs,
       //      errs() << "Simplify Success: " << es << " -> " << it->second <<
       //      "\n";
       ++Statistics::succSimpCounter;
-      return std::make_shared<IntVal>(APInt(1, it->second));
+      return new IntVal(APInt(1, it->second));
     }
   }
   //  errs() << "Simplify Fail!\n";
   return expr;
 }
 
-shared_ptr<IntVal>
-CondSimplifier::simplify1(std::map<shared_ptr<IntVal>, bool> &pcs,
-                          shared_ptr<IntVal> &expr) {
+IntVal *CondSimplifier::simplify1(std::map<IntVal *, bool> &pcs,
+                                  IntVal *&expr) {
   if (!expr->isSym) {
     return expr;
   }
@@ -87,8 +83,7 @@ CondSimplifier::simplify1(std::map<shared_ptr<IntVal>, bool> &pcs,
   return nullptr;
 }
 
-shared_ptr<SimVal> CondSimplifier::replace(
-    shared_ptr<SimVal> &expr,
-    std::map<shared_ptr<SimVal>, shared_ptr<SimVal>> &equalities) {
+SimVal *CondSimplifier::replace(SimVal *&expr,
+                                std::map<SimVal *, SimVal *> &equalities) {
   return nullptr;
 }

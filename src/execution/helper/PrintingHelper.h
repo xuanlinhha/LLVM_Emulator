@@ -9,7 +9,7 @@
 #define SRC_EXECUTION_HELPER_PRINTINGHELPER_H_
 
 class PrintingHelper {
- public:
+public:
   PrintingHelper();
   virtual ~PrintingHelper();
 };

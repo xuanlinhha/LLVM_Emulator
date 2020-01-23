@@ -21,16 +21,16 @@ public:
   SymExecutor();
   virtual ~SymExecutor();
   map<SimParamType, string> simParams;
-  static shared_ptr<ExecutionState> initialState;
-  static unique_ptr<Searcher> searcher;
-  static unique_ptr<Solver> solver;
+  static ExecutionState *initialState;
+  static Searcher *searcher;
+  static Solver *solver;
   static unsigned assertFailLimit;
   static unsigned assertFailCounter;
   static bool isStop;
   void initialize(Module *m, const vector<string> &programParams);
-  unique_ptr<Searcher> createSearcher(string searchStrategy);
-  shared_ptr<ExecutionState>
-  createInitialState(Module *m, const vector<string> &programParams);
+  Searcher *createSearcher(string searchStrategy);
+  ExecutionState *createInitialState(Module *m,
+                                     const vector<string> &programParams);
   void startSym();
 };
 

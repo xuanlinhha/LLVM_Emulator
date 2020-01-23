@@ -18,12 +18,12 @@ class CacheSolver {
 public:
   CacheSolver();
   virtual ~CacheSolver();
-  map<unique_ptr<CacheEntry>, SolverResult> data;
+  map<CacheEntry *, SolverResult> data;
   map<string, SolverResult> stringCache;
-  void addEntry(std::map<shared_ptr<IntVal>, bool> &pcs, shared_ptr<IntVal> &q,
-                bool qval, SolverResult sr);
-  bool getEntryResult(std::map<shared_ptr<IntVal>, bool> &pcs,
-                      shared_ptr<IntVal> &q, bool qval, SolverResult &sr);
+  void addEntry(std::map<IntVal *, bool> &pcs, IntVal *&q, bool qval,
+                SolverResult sr);
+  bool getEntryResult(std::map<IntVal *, bool> &pcs, IntVal *&q, bool qval,
+                      SolverResult &sr);
 };
 
 #endif /* SRC_SOLVER_CACHESOLVER_H_ */

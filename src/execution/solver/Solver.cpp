@@ -8,8 +8,8 @@
 #include "Solver.h"
 
 Solver::Solver() {
-  z3Solver = std::make_unique<Z3Solver>();
-  cacheSolver = std::make_unique<CacheSolver>();
+  z3Solver = new Z3Solver();
+  cacheSolver = new CacheSolver();
 }
 
 Solver::~Solver() {}
@@ -17,8 +17,8 @@ Solver::~Solver() {}
 // Check for all X: C(X) => q(X) is True
 // <=> exist X: C(X) && !q(X) is False
 // <=> C(X) && !q(X) is UNSAT
-ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
-                            shared_ptr<IntVal> &q, bool qval) {
+ValidResult Solver::isValid(std::map<IntVal *, bool> &pcs, IntVal *&q,
+                            bool qval) {
   SolverResult cr;
   // check in cache first, if not then call Z3 solver & add result to cache
   bool isInCache = cacheSolver->getEntryResult(pcs, q, !qval, cr);
@@ -38,8 +38,8 @@ ValidResult Solver::isValid(std::map<shared_ptr<IntVal>, bool> &pcs,
   }
 }
 
-bool Solver::isPossible(map<shared_ptr<IntVal>, bool> &pcs,
-                        shared_ptr<IntVal> &assume, bool assumeVal) {
+bool Solver::isPossible(map<IntVal *, bool> &pcs, IntVal *&assume,
+                        bool assumeVal) {
   SolverResult cr;
   // check in cache first, if not then call Z3 solver & add result to cache
   bool isInCache = cacheSolver->getEntryResult(pcs, assume, assumeVal, cr);
@@ -57,6 +57,6 @@ bool Solver::isPossible(map<shared_ptr<IntVal>, bool> &pcs,
   }
 }
 
-void Solver::printModel(std::map<shared_ptr<IntVal>, bool> &pcs) {
+void Solver::printModel(std::map<IntVal *, bool> &pcs) {
   z3Solver->printModel(pcs);
 }

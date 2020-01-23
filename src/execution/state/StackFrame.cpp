@@ -11,13 +11,13 @@ StackFrame::StackFrame(const Instruction *c, const Function *f)
     : caller(c), function(f), allocSize(0) {}
 
 StackFrame::StackFrame(const Instruction *c, const Function *f, unsigned als,
-                       vector<shared_ptr<DynVal>> &ars,
-                       map<const llvm::Value *, shared_ptr<DynVal>> &rs)
+                       vector<DynVal *> &ars,
+                       map<const llvm::Value *, DynVal *> &rs)
     : caller(c), function(f), allocSize(als), args(ars), regs(rs) {}
 
 StackFrame::~StackFrame() {}
 
-void StackFrame::insertBinding(const llvm::Value *v, shared_ptr<DynVal> val) {
+void StackFrame::insertBinding(const llvm::Value *v, DynVal *val) {
   auto it = regs.find(v);
   if (it == regs.end())
     regs.insert(std::make_pair(v, std::move(val)));
@@ -30,10 +30,8 @@ bool StackFrame::hasBinding(const llvm::Value *val) const {
   return itr != regs.end();
 }
 
-shared_ptr<DynVal> StackFrame::lookup(const llvm::Value *val) {
-  return regs.at(val);
-}
+DynVal *StackFrame::lookup(const llvm::Value *val) { return regs.at(val); }
 
-unique_ptr<StackFrame> StackFrame::clone() {
-  return std::make_unique<StackFrame>(caller, function, allocSize, args, regs);
+StackFrame *StackFrame::clone() {
+  return new StackFrame(caller, function, allocSize, args, regs);
 }

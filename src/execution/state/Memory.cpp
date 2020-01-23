@@ -12,7 +12,7 @@ Memory::Memory() : totalSize(DEFAULT_SIZE), usedSize(1), concMem(nullptr) {
 }
 
 Memory::Memory(unsigned ts, unsigned us, unsigned char *cm,
-               map<unsigned long, shared_ptr<DynVal>> &sm)
+               map<unsigned long, DynVal *> &sm)
     : totalSize(ts), usedSize(us), concMem(cm), symMem(sm) {}
 
 Memory::~Memory() {}
@@ -43,13 +43,11 @@ void Memory::deallocate(unsigned size) { usedSize -= size; }
 
 void Memory::free(unsigned long addr, unsigned size) {}
 
-shared_ptr<DynVal> Memory::readAsInt(unsigned long address,
-                                     unsigned bitWidth) const {
+DynVal *Memory::readAsInt(unsigned long address, unsigned bitWidth) const {
   assert(bitWidth <= 64 && "No support for >64-bit int read");
   assert(isAddressLegal(address) && "Memory::readAsInt: illegal address");
   // read symbolic
-  map<unsigned long, shared_ptr<DynVal>>::const_iterator it =
-      symMem.find(address);
+  map<unsigned long, DynVal *>::const_iterator it = symMem.find(address);
   if (it != symMem.end()) {
     assert((it->second->valType == DynValType::INT_VAL) &&
            "Memory::readAsInt: Invalid memory reading!\n");
@@ -58,15 +56,13 @@ shared_ptr<DynVal> Memory::readAsInt(unsigned long address,
   // read concrete
   uint64_t val = 0;
   std::memcpy(&val, concMem + address, bitWidth / 8u);
-  return std::make_shared<IntVal>(APInt(bitWidth, val));
+  return new IntVal(APInt(bitWidth, val));
 }
 
-shared_ptr<DynVal> Memory::readAsFloat(unsigned long address,
-                                       bool isDouble) const {
+DynVal *Memory::readAsFloat(unsigned long address, bool isDouble) const {
   assert(isAddressLegal(address) && "Memory::readAsFloat: illegal address");
   // read symbolic
-  map<unsigned long, shared_ptr<DynVal>>::const_iterator it =
-      symMem.find(address);
+  map<unsigned long, DynVal *>::const_iterator it = symMem.find(address);
   if (it != symMem.end()) {
     assert((it->second->valType == DynValType::FLOAT_VAL) &&
            "Memory::readAsFloat: Invalid memory reading!\n");
@@ -77,19 +73,18 @@ shared_ptr<DynVal> Memory::readAsFloat(unsigned long address,
   if (isDouble) {
     double val = 0;
     std::memcpy(&val, concMem + address, sizeof(double));
-    return std::make_shared<FloatVal>(val, true);
+    return new FloatVal(val, true);
   } else {
     float val = 0;
     std::memcpy(&val, concMem + address, sizeof(float));
-    return std::make_shared<FloatVal>(val, false);
+    return new FloatVal(val, false);
   }
 }
 
-shared_ptr<DynVal> Memory::readAsPointer(unsigned long address) const {
+DynVal *Memory::readAsPointer(unsigned long address) const {
   assert(isAddressLegal(address) && "Memory::readAsPointer: illegal address");
   // read symbolic
-  map<unsigned long, shared_ptr<DynVal>>::const_iterator it =
-      symMem.find(address);
+  map<unsigned long, DynVal *>::const_iterator it = symMem.find(address);
   if (it != symMem.end()) {
     assert((it->second->valType == DynValType::POINTER_VAL) &&
            "Memory::readAsPointer: Invalid memory reading!\n");
@@ -113,7 +108,7 @@ shared_ptr<DynVal> Memory::readAsPointer(unsigned long address) const {
   default:
     throw std::runtime_error("readAsPointer() reads illegal pointer tag");
   }
-  return std::make_shared<PointerVal>(retAddr & ~AddressSpaceMask, addrSpace);
+  return new PointerVal(retAddr & ~AddressSpaceMask, addrSpace);
 }
 
 string Memory::readAsString(unsigned long address) {
@@ -129,10 +124,10 @@ void *Memory::getRawPointerAtAddress(unsigned long address) {
   return concMem + address;
 }
 
-void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
+void Memory::write(unsigned long address, const DynVal *dynVal) {
   switch (dynVal->valType) {
   case DynValType::INT_VAL: {
-    auto intValue = std::static_pointer_cast<IntVal>(dynVal);
+    auto intValue = (IntVal *)dynVal;
     if (intValue->isSym) {
       symMem[address] = intValue;
     } else {
@@ -145,7 +140,7 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
     break;
   }
   case DynValType::FLOAT_VAL: {
-    auto floatValue = std::static_pointer_cast<FloatVal>(dynVal);
+    auto floatValue = (FloatVal *)dynVal;
     if (floatValue->isSym) {
       symMem[address] = floatValue;
     } else {
@@ -159,7 +154,7 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
     break;
   }
   case DynValType::POINTER_VAL: {
-    auto pointerValue = std::static_pointer_cast<PointerVal>(dynVal);
+    auto pointerValue = (PointerVal *)dynVal;
     if (pointerValue->isSym) {
       symMem[address] = pointerValue;
     } else {
@@ -182,9 +177,9 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
   }
   case DynValType::ARRAY_VAL: {
     //  errs() << "Writing ArrayValue to " << add << "\n";
-    auto arrayValue = std::static_pointer_cast<ArrayVal>(dynVal);
-    for (vector<shared_ptr<DynVal>>::iterator it = arrayValue->array.begin(),
-                                              ie = arrayValue->array.end();
+    auto arrayValue = (ArrayVal *)dynVal;
+    for (vector<DynVal *>::iterator it = arrayValue->array.begin(),
+                                    ie = arrayValue->array.end();
          it != ie; ++it) {
       write(address, (*it));
       address += arrayValue->elemSize;
@@ -193,10 +188,9 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
   }
   case DynValType::STRUCT_VAL: {
     //  errs() << "Writing StructValue to " << add << "\n";
-    auto structValue = std::static_pointer_cast<StructVal>(dynVal);
-    for (map<unsigned, shared_ptr<DynVal>>::iterator
-             it = structValue->structMap.begin(),
-             ie = structValue->structMap.end();
+    auto structValue = (StructVal *)dynVal;
+    for (map<unsigned, DynVal *>::iterator it = structValue->structMap.begin(),
+                                           ie = structValue->structMap.end();
          it != ie; ++it) {
       write(address + it->first, it->second);
     }
@@ -205,8 +199,8 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
   }
 }
 
-unique_ptr<Memory> Memory::clone() {
+Memory *Memory::clone() {
   unsigned char *copyMem = new unsigned char[totalSize];
   std::memcpy(copyMem, concMem, totalSize);
-  return std::make_unique<Memory>(totalSize, usedSize, copyMem, symMem);
+  return new Memory(totalSize, usedSize, copyMem, symMem);
 }

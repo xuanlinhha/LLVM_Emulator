@@ -12,8 +12,7 @@ unsigned ExecutionState::allocateStackMem(unsigned size) {
   return stackMem->allocate(size);
 }
 
-void ExecutionState::writeToPointer(const shared_ptr<PointerVal> ptr,
-                                    const shared_ptr<DynVal> val) {
+void ExecutionState::writeToPointer(const PointerVal *ptr, const DynVal *val) {
   switch (ptr->space) {
   case AddressSpace::GLOBAL: {
     globalMem->write(ptr->address, val);
@@ -30,9 +29,7 @@ void ExecutionState::writeToPointer(const shared_ptr<PointerVal> ptr,
   }
 }
 
-shared_ptr<DynVal>
-ExecutionState::readFromPointer(const shared_ptr<PointerVal> ptr,
-                                Type *loadType) {
+DynVal *ExecutionState::readFromPointer(const PointerVal *ptr, Type *loadType) {
   switch (ptr->space) {
   case AddressSpace::GLOBAL:
     return loadValue(globalMem, ptr->address, loadType);
@@ -44,11 +41,10 @@ ExecutionState::readFromPointer(const shared_ptr<PointerVal> ptr,
     llvm_unreachable(
         "SymExecutor::readFromPointer: Pointer type not supported");
   }
-  return std::make_shared<DynVal>(DynValType::ERROR);
+  return new DynVal(DynValType::ERROR);
 }
 
-shared_ptr<DynVal> ExecutionState::loadValue(unique_ptr<Memory> &mem,
-                                             unsigned addr, Type *loadType) {
+DynVal *ExecutionState::loadValue(Memory *&mem, unsigned addr, Type *loadType) {
   // look up in symbolic memory
   if (mem->symMem.find(addr) != mem->symMem.end()) {
     return mem->symMem[addr];
@@ -63,8 +59,7 @@ shared_ptr<DynVal> ExecutionState::loadValue(unique_ptr<Memory> &mem,
     return mem->readAsFloat(addr, loadType->isDoubleTy());
   } else if (auto stType = dyn_cast<StructType>(loadType)) {
     auto stLayout = dataLayout->getStructLayout(stType);
-    auto retVal =
-        std::make_shared<StructVal>(dataLayout->getTypeAllocSize(stType));
+    auto retVal = (StructVal *)dataLayout->getTypeAllocSize(stType);
     for (auto i = 0u, e = stType->getNumElements(); i < e; ++i) {
       auto elemType = stType->getElementType(i);
       auto offset = stLayout->getElementOffset(i);
@@ -76,7 +71,7 @@ shared_ptr<DynVal> ExecutionState::loadValue(unique_ptr<Memory> &mem,
     auto elemSize = dataLayout->getTypeAllocSize(elemType);
     auto arraySize = arrayType->getNumElements();
 
-    auto retVal = std::make_shared<ArrayVal>(elemSize, arraySize);
+    auto retVal = new ArrayVal(elemSize, arraySize);
     for (unsigned i = 0; i < arraySize; ++i) {
       if (elemType->isAggregateType())
         retVal->setElementAtIndex(
@@ -85,11 +80,11 @@ shared_ptr<DynVal> ExecutionState::loadValue(unique_ptr<Memory> &mem,
     return retVal;
   } else {
     llvm_unreachable("Load type not supported");
-    return std::make_shared<DynVal>(DynValType::ERROR);
+    return new DynVal(DynValType::ERROR);
   }
 };
 
-string ExecutionState::readStringFromPointer(const shared_ptr<PointerVal> ptr) {
+string ExecutionState::readStringFromPointer(const PointerVal *ptr) {
   switch (ptr->space) {
   case AddressSpace::GLOBAL: {
     return globalMem->readAsString(ptr->address);

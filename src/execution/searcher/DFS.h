@@ -14,9 +14,9 @@ class DFS : public Searcher {
 public:
   DFS();
   virtual ~DFS();
-  vector<shared_ptr<ExecutionState>> worklist;
-  virtual void insertState(shared_ptr<ExecutionState> state);
-  virtual shared_ptr<ExecutionState> getNextState();
+  vector<ExecutionState *> worklist;
+  virtual void insertState(ExecutionState *state);
+  virtual ExecutionState *getNextState();
   virtual bool isEmpty();
 };
 

@@ -14,11 +14,10 @@ using namespace std;
 
 class CacheEntry {
 public:
-  CacheEntry(std::map<shared_ptr<IntVal>, bool> &_pcs, shared_ptr<IntVal> &_q,
-             bool _qval);
+  CacheEntry(std::map<IntVal *, bool> &_pcs, IntVal *&_q, bool _qval);
   virtual ~CacheEntry();
-  std::map<shared_ptr<IntVal>, bool> pcs;
-  shared_ptr<IntVal> q;
+  std::map<IntVal *, bool> pcs;
+  IntVal *q;
   bool qval;
   string stringify();
 };

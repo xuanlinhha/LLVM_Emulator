@@ -53,10 +53,10 @@ static unordered_map<string, ExternalCallType> externalFuncMap = {
     {"tool_assert", ExternalCallType::TOOL_ASSERT},
     {"tool_assume", ExternalCallType::TOOL_ASSUME}};
 
-shared_ptr<DynVal>
-ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
-                                     vector<shared_ptr<DynVal>> argValues) {
-  auto getRawPointer = [this](const shared_ptr<PointerVal> ptr) {
+DynVal *ExecutionState::callExternalFunction(ImmutableCallSite cs,
+                                             const Function *f,
+                                             vector<DynVal *> argValues) {
+  auto getRawPointer = [this](const PointerVal *ptr) {
     switch (ptr->space) {
     case AddressSpace::GLOBAL:
       return globalMem->getRawPointerAtAddress(ptr->address);
@@ -69,7 +69,7 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
 
   // ignore intrinsic function
   if (f->isIntrinsic()) {
-    return std::make_shared<IntVal>(APInt(32, 0));
+    return new IntVal(APInt(32, 0));
   }
 
   // handle common functions
@@ -83,24 +83,22 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
 
   switch (itr->second) {
   case ExternalCallType::NOOP:
-    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+    return new DynVal(DynValType::UNDEF_VAL);
   case ExternalCallType::PRINTF: {
     assert(argValues.size() >= 1);
-    string fmtString = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
+    string fmtString = readStringFromPointer((PointerVal *)argValues.at(0));
     auto fmt = boost::format(fmtString);
     for (auto i = std::size_t(1), e = argValues.size(); i < e; ++i) {
       auto argVal = argValues[i];
       if (argVal->valType == DynValType::UNDEF_VAL) {
         llvm_unreachable("Passing undef value into printf?");
       } else if (argVal->valType == DynValType::INT_VAL) {
-        fmt % std::static_pointer_cast<IntVal>(argVal)->intVal.getZExtValue();
+        fmt % ((IntVal *)argVal)->intVal.getZExtValue();
       } else if (argVal->valType == DynValType::FLOAT_VAL) {
-        fmt % std::static_pointer_cast<FloatVal>(argVal)->fpVal;
+        fmt % ((FloatVal *)argVal)->fpVal;
       } else if (argVal->valType == DynValType::POINTER_VAL) {
         // TODO: Will be a bug in case of printing a pointer value
-        string tmp =
-            readStringFromPointer(std::static_pointer_cast<PointerVal>(argVal));
+        string tmp = readStringFromPointer((PointerVal *)argVal);
         fmt % tmp;
       } else {
         llvm_unreachable("Passing an array or struct to printf?");
@@ -108,96 +106,81 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
     }
 
     errs() << fmt.str();
-    return std::make_shared<IntVal>(APInt(32, fmt.size()));
+    return new IntVal(APInt(32, fmt.size()));
   }
   case ExternalCallType::MEMCPY: {
     assert(argValues.size() >= 3);
 
-    auto destPtr = std::static_pointer_cast<PointerVal>(argValues.at(0));
-    auto srcPtr = std::static_pointer_cast<PointerVal>(argValues.at(1));
-    auto size = std::static_pointer_cast<IntVal>(argValues.at(2))
-                    ->intVal.getZExtValue();
+    auto destPtr = (PointerVal *)argValues.at(0);
+    auto srcPtr = (PointerVal *)argValues.at(1);
+    auto size = ((IntVal *)argValues.at(2))->intVal.getZExtValue();
     std::memcpy(getRawPointer(destPtr), getRawPointer(srcPtr), size);
-    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+    return new DynVal(DynValType::UNDEF_VAL);
   }
   case ExternalCallType::MEMSET: {
     assert(argValues.size() >= 3);
-    auto destPtr = std::static_pointer_cast<PointerVal>(argValues.at(0));
-    auto fillInt = std::static_pointer_cast<IntVal>(argValues.at(1))
-                       ->intVal.getZExtValue();
-    auto size = std::static_pointer_cast<IntVal>(argValues.at(2))
-                    ->intVal.getZExtValue();
+    auto destPtr = (PointerVal *)argValues.at(0);
+    auto fillInt = ((IntVal *)argValues.at(1))->intVal.getZExtValue();
+    auto size = ((IntVal *)argValues.at(2))->intVal.getZExtValue();
     std::memset(getRawPointer(destPtr), fillInt, size);
-    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+    return new DynVal(DynValType::UNDEF_VAL);
   }
   case ExternalCallType::MALLOC: {
     assert(argValues.size() >= 1);
-    auto mallocSize = std::static_pointer_cast<IntVal>(argValues.at(0))
-                          ->intVal.getZExtValue();
+    auto mallocSize = ((IntVal *)argValues.at(0))->intVal.getZExtValue();
     auto retAddr = heapMem->allocate(mallocSize);
-    return std::make_shared<PointerVal>(retAddr, AddressSpace::HEAP);
+    return new PointerVal(retAddr, AddressSpace::HEAP);
   }
   case ExternalCallType::FREE: {
     assert(argValues.size() >= 1);
-    auto ptrVal = std::static_pointer_cast<PointerVal>(argValues.at(0));
+    auto ptrVal = (PointerVal *)argValues.at(0);
     if (ptrVal->space != AddressSpace::HEAP)
       llvm_unreachable("Trying to free a non-heap pointer?");
     // currentState->heapMem->free(ptrVal->address());
     // TODO: Free memory on heap memory
-    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+    return new DynVal(DynValType::UNDEF_VAL);
   }
   // make symbolic
   case ExternalCallType::SYMBOLIC_BOOL: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<IntVal>(1, SymExprType::VAR, symName.c_str());
+    string symName = readStringFromPointer((PointerVal *)argValues.at(0));
+    return new IntVal(1, SymExprType::VAR, symName.c_str());
   }
   case ExternalCallType::SYMBOLIC_CHAR: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<IntVal>(sizeof(char) * 8, SymExprType::VAR,
-                                    symName.c_str());
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    return new IntVal(sizeof(char) * 8, SymExprType::VAR, symName.c_str());
   }
   case ExternalCallType::SYMBOLIC_INT: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
-        sizeof(int) * 8, SymExprType::VAR, symName.c_str());
-    return std::move(r);
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    IntVal *r = new IntVal(sizeof(int) * 8, SymExprType::VAR, symName.c_str());
+    return r;
   }
   case ExternalCallType::SYMBOLIC_FLOAT: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<FloatVal>(SymExprType::VAR, symName.c_str(), false);
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    return new FloatVal(SymExprType::VAR, symName.c_str(), false);
   }
   case ExternalCallType::SYMBOLIC_DOUBLE: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<FloatVal>(SymExprType::VAR, symName.c_str(), true);
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    return new FloatVal(SymExprType::VAR, symName.c_str(), true);
   }
   case ExternalCallType::SYMBOLIC_POINTER: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    return std::make_shared<PointerVal>(SymExprType::VAR, symName.c_str());
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    return new PointerVal(SymExprType::VAR, symName.c_str());
   }
   case ExternalCallType::SYMBOLIC_SHORT: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
-        sizeof(short) * 8, SymExprType::VAR, symName.c_str());
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    IntVal *r =
+        new IntVal(sizeof(short) * 8, SymExprType::VAR, symName.c_str());
     return std::move(r);
   }
   case ExternalCallType::SYMBOLIC_LONG: {
-    string symName = readStringFromPointer(
-        std::static_pointer_cast<PointerVal>(argValues.at(0)));
-    std::shared_ptr<IntVal> r = std::make_shared<IntVal>(
-        sizeof(long) * 8, SymExprType::VAR, symName.c_str());
+    string symName = readStringFromPointer((PointerVal *)(argValues.at(0)));
+    IntVal *r = new IntVal(sizeof(long) * 8, SymExprType::VAR, symName.c_str());
     return std::move(r);
   }
   //
   case ExternalCallType::TOOL_ASSUME: {
     assert(argValues.size() >= 1);
-    auto assumeExpr = std::static_pointer_cast<IntVal>(argValues[0]);
+    auto assumeExpr = (IntVal *)argValues[0];
     auto simplifiedPCS =
         PCSSimplifier::getDependentConstraints(pcs, assumeExpr);
 
@@ -222,11 +205,11 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
       pcs.insert(std::make_pair(assumeExpr, true));
     }
 
-    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+    return new DynVal(DynValType::UNDEF_VAL);
   }
   case ExternalCallType::TOOL_ASSERT: {
     assert(argValues.size() >= 1);
-    auto assertExpr = std::static_pointer_cast<IntVal>(argValues[0]);
+    auto assertExpr = (IntVal *)argValues[0];
     if (!assertExpr->intVal.getBoolValue()) {
       // terminate current state
       isError = true;
@@ -247,9 +230,9 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
         SymExecutor::isStop = true;
       }
     }
-    return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+    return new DynVal(DynValType::UNDEF_VAL);
   }
   }
   llvm_unreachable("Should not reach here");
-  return std::make_shared<DynVal>(DynValType::ERROR);
+  return new DynVal(DynValType::ERROR);
 }
