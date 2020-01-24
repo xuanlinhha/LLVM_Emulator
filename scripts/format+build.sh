@@ -3,7 +3,7 @@ CLANG=$ROOT/clang+llvm-8.0.0/bin/clang
 CLANG_FORMAT=$ROOT/clang+llvm-8.0.0/bin/clang-format
 PROJECT=$ROOT/LLVM_Emulator
 SRC=$PROJECT/src
-TEST=$PROJECT/test
+TEST=$PROJECT/benchmarks
 echo "=== PATH ==="
 printf "clang-format: %s\n" "$CLANG_FORMAT"
 printf "src: %s\n" "$SRC"

@@ -6,15 +6,13 @@
  */
 
 #include <iostream>
-#include "basic/Ref.h"
 
 class A {
   unsigned refCount;
   A() : refCount(0){};
   ~A(){
-	  printf("");
+	  printf("~");
   };
 };
 int main(int argc, char **argv) {
-	Ref<A> a;
 }
