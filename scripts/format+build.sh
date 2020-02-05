@@ -31,10 +31,13 @@ $CLANG_FORMAT -i $TEST/sv-comp/*.c
 echo "====================="
 
 echo "=== BUILD ==="
+if [[ ! -d "build" ]]; then
+    mkdir build
+    cd build
+	cmake ..
+fi
+cd build
 make -j 4
+cd ..
 echo "====================="
 
-echo "=== COMPILE TEST ==="
-$CLANG -Isrc/include -emit-llvm -c -O0 -g -S $TEST/test.c -o $TEST/test.ll
-$CLANG -Isrc/include -emit-llvm -c -O0 -g $TEST/test.c -o $TEST/test.bc
-echo "====================="

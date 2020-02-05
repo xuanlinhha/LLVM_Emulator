@@ -1,21 +1,24 @@
 #include "../src/include/sym.h"
 
+int N = 100000;
 int main() {
+  int a[N];
+  int b[N];
   int i;
-  int j = symbolic_int("j");
-  int n = symbolic_int("n");
-  tool_assume(n < 100000);
-  int a[n];
+  int sum = 0;
 
-  tool_assume(j > 0 && j < 10000);
-
-  for (i = 1; i < n; i++) {
-    int k = symbolic_int("k");
-    tool_assume(k > 0 && k < 10000);
-    a[i] = i + j + k;
+  for (i = 0; i < N; i++) {
+    a[i] = i;
   }
 
-  for (i = 1; i < n; i++)
-    tool_assert(a[i] >= (i + 2));
+  for (i = 0; i < N; i++) {
+    b[N - i - 1] = i;
+  }
+
+  for (i = 0; i < N; i++) {
+    sum = sum + (a[i] - b[N - i - 1]);
+  }
+
+  tool_assert(sum == 0);
   return 0;
 }
