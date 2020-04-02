@@ -1,4 +1,4 @@
-ROOT="$(dirname `pwd`)"
+ROOT="$(dirname $(dirname `pwd`))"
 CLANG=$ROOT/llvm/bin/clang
 CLANG_FORMAT=$ROOT/llvm/bin/clang-format
 PROJECT=$ROOT/LLVM_Emulator
@@ -42,12 +42,3 @@ else
 fi
 make -j4
 echo "============="
-
-echo "=== COMPILE TEST ==="
-$CLANG -Isrc/include -emit-llvm -c -O0 -g -S $BENCHMARKS/test.c -o $BENCHMARKS/test.ll
-$CLANG -Isrc/include -emit-llvm -c -O0 -g $BENCHMARKS/test.c -o $BENCHMARKS/test.bc
-echo "===================="
-
-echo "=== RUN TEST ==="
-$PROJECT/build/bin/sym $BENCHMARKS/test.bc
-echo "================"
