@@ -21,6 +21,7 @@ public:
   static std::chrono::duration<double> runningTime;
   static unsigned pathCounter;
   static unsigned errorPathCounter;
+  static unsigned instructionsCounter;
 
   // simplification
   static unsigned concCondCounter;

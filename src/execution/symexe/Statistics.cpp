@@ -11,6 +11,7 @@ std::chrono::duration<double> Statistics::runningTime =
     std::chrono::duration<double>(0.0);
 unsigned Statistics::pathCounter = 0;
 unsigned Statistics::errorPathCounter = 0;
+unsigned Statistics::instructionsCounter = 0;
 
 unsigned Statistics::concCondCounter = 0;
 unsigned Statistics::symCondCounter = 0;
@@ -45,6 +46,8 @@ void Statistics::printInfo() {
       << ++order << ". Paths: " << pathCounter << "\n";
   WithColor(errs(), HighlightColor::String)
       << ++order << ". Error Paths: " << errorPathCounter << "\n";
+  WithColor(errs(), HighlightColor::String)
+      << ++order << ". Total Instructions : " << instructionsCounter << "\n";
 
   WithColor(errs(), HighlightColor::String)
       << ++order << ". Concrete Condition: " << concCondCounter << "\n";

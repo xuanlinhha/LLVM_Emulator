@@ -26,6 +26,8 @@ shared_ptr<DynVal> ExecutionState::run() {
       continue;
     }
 
+    ++Statistics::instructionsCounter;
+
     switch (currentInst->getOpcode()) {
     case Instruction::Br: {
       incomingBB = currentInst->getParent();
