@@ -4,35 +4,33 @@ This project requires LLVM & Z3. Supposed that our working folder named `ROOT`.
 
 ```
 ROOT $ ls
-clang+llvm-8.0.0    LLVM_Emulator    z3
+llvm    LLVM_Emulator    z3
 ```
 
 ##### LLVM & Z3
 
-Download Pre-Built Binaries of LLVM-8.0.0 from here: http://releases.llvm.org/download.html
+Download Pre-Built Binaries of LLVM-8.0.0 & extract to folder `llvm`:
 
-Get Z3 from here: https://github.com/Z3Prover/z3. Checkout to a stable version & build with CMake
+[https://releases.llvm.org/8.0.0/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz](https://releases.llvm.org/8.0.0/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz)
+
+
+Get Z3 source from here & extract to folder `z3`:
+
+[https://github.com/Z3Prover/z3/archive/z3-4.8.7.tar.gz](https://github.com/Z3Prover/z3/archive/z3-4.8.7.tar.gz)
+
+Build Z3 with Makefiles:
 
 ```
-ROOT/z3 $ git clean -nx src
-ROOT/z3 $ git clean -fx src
 ROOT/z3 $ mkdir build
 ROOT/z3 $ cd build
 ROOT/z3 $ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../
 ROOT/z3 $ make -j8
 ```
 
-##### Build LLVM_Emulator
-Firstly, adjust the paths of LLVM & Z3 in these two lines of `ROOT/LLVM_Emulator/src/tool/CMakeLists.txt`:
+##### Download & Build LLVM_Emulator
 
 ```
-set(LLVM_INSTALL_DIR "ROOT/clang+llvm-8.0.0" CACHE STRING "Path to LLVM folder")
-set(Z3_INSTALL_DIR "ROOT/z3/build" CACHE STRING "Path to Z3 folder")
-```
-
-##### Steps to build:
-
-```
+ROOT $ git clone git@github.com:xuanlinhha/LLVM_Emulator.git
 ROOT/LLVM_Emulator $ mkdir build
 ROOT/LLVM_Emulator $ cd build
 ROOT/LLVM_Emulator/build $ cmake ..
