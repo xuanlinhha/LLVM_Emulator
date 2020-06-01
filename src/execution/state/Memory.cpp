@@ -153,7 +153,8 @@ void Memory::write(unsigned long address, shared_ptr<DynVal> dynVal) {
       if (floatValue->isDouble) {
         memcpy(concMem + address, &floatValue->fpVal, sizeof(double));
       } else {
-        memcpy(concMem + address, &floatValue->fpVal, sizeof(float));
+        float t = (float)floatValue->fpVal;
+        memcpy(concMem + address, &t, sizeof(float));
       }
     }
     break;
