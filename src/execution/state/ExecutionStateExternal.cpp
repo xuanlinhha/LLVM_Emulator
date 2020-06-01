@@ -15,6 +15,7 @@ enum class ExternalCallType {
   MEMSET,
   MALLOC,
   FREE,
+  RAND,
   // make symbolic
   SYMBOLIC_BOOL,
   SYMBOLIC_CHAR,
@@ -40,6 +41,7 @@ static unordered_map<string, ExternalCallType> externalFuncMap = {
     {"llvm.memset.p0i8.i64", ExternalCallType::MEMSET},
     {"malloc", ExternalCallType::MALLOC},
     {"free", ExternalCallType::FREE},
+    {"rand", ExternalCallType::RAND},
     // symbolic & checking
     {"symbolic_bool", ExternalCallType::SYMBOLIC_BOOL},
     {"symbolic_char", ExternalCallType::SYMBOLIC_CHAR},
@@ -145,6 +147,10 @@ ExecutionState::callExternalFunction(ImmutableCallSite cs, const Function *f,
     // currentState->heapMem->free(ptrVal->address());
     // TODO: Free memory on heap memory
     return std::make_shared<DynVal>(DynValType::UNDEF_VAL);
+  }
+  case ExternalCallType::RAND: {
+    int r = rand();
+    return std::make_shared<IntVal>(APInt(32, r));
   }
   // make symbolic
   case ExternalCallType::SYMBOLIC_BOOL: {
